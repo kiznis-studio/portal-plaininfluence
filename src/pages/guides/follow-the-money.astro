@@ -1,0 +1,198 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+
+const title = 'Follow the Money: How to Look Up Political Donations';
+const description = 'Learn how FEC campaign finance data works, what PAC contributions mean, and how to research any politician\'s donors using PlainInfluence.';
+const publishedTime = '2026-03-16';
+
+const faqItems = [
+  {
+    q: 'What is the FEC and why does it matter?',
+    a: 'The Federal Election Commission (FEC) is the independent regulatory agency that oversees campaign finance in federal elections. It requires candidates, PACs, and party committees to disclose all contributions and expenditures. This data is what makes tools like PlainInfluence possible — without FEC disclosure requirements, the public would have no way to see who funds political campaigns.',
+  },
+  {
+    q: 'How current is the donation data on PlainInfluence?',
+    a: 'PlainInfluence uses FEC bulk data from the 2024 election cycle. The FEC publishes updated bulk files regularly, and our data reflects the most recent available filings. Keep in mind that reporting deadlines mean some contributions may not appear immediately after they are made.',
+  },
+  {
+    q: 'Can I see individual donations or only PAC contributions?',
+    a: 'PlainInfluence currently focuses on PAC-to-candidate contributions, which represent organized giving from corporations, labor unions, trade associations, and ideological groups. Individual donor data is available through the FEC website directly. PAC contributions are particularly useful for understanding institutional influence on politicians.',
+  },
+  {
+    q: 'What is the difference between a contribution and an expenditure?',
+    a: 'A contribution is money given directly to a candidate\'s campaign, subject to federal limits. An expenditure is money spent by a committee independently — for example, a Super PAC running ads supporting a candidate. Both are disclosed to the FEC, but they follow different rules and limits.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  article={true}
+  publishedTime={publishedTime}
+  breadcrumbs={[
+    { name: 'Home', href: '/' },
+    { name: 'Guides', href: '/guides/' },
+    { name: 'Follow the Money' },
+  ]}
+>
+  <article class="py-8 md:py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <header class="mb-8">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3">Campaign Finance</span>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+        <p class="text-lg text-[var(--color-muted)]">
+          A practical guide to researching who funds politicians, what PAC contributions reveal,
+          and how to use public data to hold elected officials accountable.
+        </p>
+      </header>
+
+      <!-- Key Takeaway -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 rounded-r-lg p-4 mb-8">
+        <p class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-1">Key Takeaway</p>
+        <p class="text-sm text-[var(--color-foreground)]">
+          Every dollar contributed to a federal candidate is public record. The FEC requires full disclosure
+          of PAC contributions, making it possible to trace exactly which organizations fund which politicians.
+          PlainInfluence links this data with lobbying and contract records so you can see the full picture.
+        </p>
+      </div>
+
+      <div class="prose dark:prose-invert max-w-none text-[var(--color-muted)] [&_h2]:text-[var(--color-foreground)] [&_h3]:text-[var(--color-foreground)] [&_strong]:text-[var(--color-foreground)]">
+
+        <h2>Why Political Donations Matter</h2>
+        <p>
+          In the 2024 election cycle, billions of dollars flowed into federal campaigns. Behind every
+          campaign ad, rally, and mailer is a funding source — and U.S. law requires that those sources
+          be disclosed. Understanding who gives money to politicians is one of the most direct ways to
+          understand whose interests might shape policy.
+        </p>
+        <p>
+          Political donations do not necessarily buy votes, but they do buy access. Research consistently
+          shows that donors — especially large organizational donors — get more meetings, more phone calls,
+          and more attention from the politicians they support. Tracking these financial relationships is
+          essential for an informed citizenry.
+        </p>
+
+        <h2>How FEC Campaign Finance Data Works</h2>
+        <p>
+          The Federal Election Commission maintains a comprehensive database of every contribution and
+          expenditure in federal elections. Here is how the system works:
+        </p>
+        <ul>
+          <li><strong>Candidates register</strong> with the FEC when they raise or spend more than $5,000.</li>
+          <li><strong>Political committees</strong> (PACs, party committees, Super PACs) must also register and file regular reports.</li>
+          <li><strong>Contribution reports</strong> are filed on a regular schedule — quarterly for most committees, monthly for some.</li>
+          <li><strong>All data is public</strong> and available in bulk from the FEC website.</li>
+        </ul>
+        <p>
+          PlainInfluence processes the FEC bulk data files and organizes them by politician, making it
+          easy to see who received money and from which organizations.
+        </p>
+
+        <h2>What PAC Contributions Tell You</h2>
+        <p>
+          A Political Action Committee (PAC) is an organization that pools contributions from members and
+          donates to political candidates. PACs are required to register with the FEC and disclose all
+          contributions. There are several important types:
+        </p>
+        <ul>
+          <li><strong>Connected PACs</strong> — affiliated with a corporation, labor union, or trade association. The parent organization pays operating costs, while voluntary contributions from employees or members fund political donations.</li>
+          <li><strong>Leadership PACs</strong> — established by politicians themselves to support other candidates and build political alliances.</li>
+          <li><strong>Nonconnected PACs</strong> — independent ideological or issue-based committees with no corporate or union sponsor.</li>
+        </ul>
+        <p>
+          When you see a PAC contribution on a politician's profile, it tells you that an organized group
+          with specific interests chose to financially support that candidate. This is different from
+          individual giving — PAC contributions represent institutional decisions.
+        </p>
+
+        <h2>How to Research a Politician's Donors on PlainInfluence</h2>
+        <p>
+          Looking up a politician's funding sources on PlainInfluence takes seconds:
+        </p>
+        <ol>
+          <li>Go to the <a href="/politicians/">Politicians directory</a> or use the <a href="/search">search bar</a> on the homepage.</li>
+          <li>Find the politician by name, state, or party.</li>
+          <li>On their profile page, you will see a breakdown of PAC contributions — who gave, how much, and what type of organization.</li>
+          <li>Click any contributing organization to see its full profile, including lobbying spending and federal contracts.</li>
+        </ol>
+        <p>
+          This cross-referencing is what makes PlainInfluence unique. You can start with a politician
+          and discover which industries fund them, or start with an organization and see which politicians
+          it supports.
+        </p>
+
+        <h2>The Bigger Picture: Money, Lobbying, and Contracts</h2>
+        <p>
+          Campaign contributions are just one piece of the political money puzzle. PlainInfluence links
+          three federal databases to show the full influence chain:
+        </p>
+        <ul>
+          <li><strong>Campaign contributions</strong> (FEC) — who funds politicians</li>
+          <li><strong>Lobbying expenditures</strong> (Senate LDA) — who spends money to influence legislation</li>
+          <li><strong>Federal contracts</strong> (USAspending.gov) — who receives government money</li>
+        </ul>
+        <p>
+          When the same organization appears in all three — donating to a politician, lobbying on a
+          specific bill, and then receiving a government contract — it raises important questions about
+          accountability and transparency. Browse <a href="/organizations/">all organizations</a> to explore
+          these connections.
+        </p>
+
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- FAQ -->
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+          {faqItems.map((item, i) => (
+            <details class="card p-4 group" open={i === 0}>
+              <summary class="font-medium text-[var(--color-foreground)] cursor-pointer list-none flex items-center justify-between gap-4">
+                {item.q}
+                <svg class="w-5 h-5 shrink-0 text-[var(--color-muted)] group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="mt-3 text-sm text-[var(--color-muted)]">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="mt-10 border-t border-[var(--color-border)] pt-6">
+        <h2 class="text-lg font-semibold mb-3">Sources</h2>
+        <ul class="text-sm text-[var(--color-muted)] space-y-1">
+          <li><a href="https://www.fec.gov/data/browse-data/?tab=bulk-data" class="text-indigo-600 dark:text-indigo-400 hover:underline">FEC Bulk Data Downloads</a> — Campaign contribution and committee filings</li>
+          <li><a href="https://www.fec.gov/introduction-campaign-finance/" class="text-indigo-600 dark:text-indigo-400 hover:underline">FEC Introduction to Campaign Finance</a> — Official guide to campaign finance rules</li>
+          <li><a href="https://www.usaspending.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">USAspending.gov</a> — Federal spending transparency</li>
+        </ul>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="mt-8 p-4 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)]">
+        <p class="text-xs text-[var(--color-muted)]">
+          This content is for informational purposes. PlainInfluence is nonpartisan and does not
+          endorse any candidate or party. Campaign finance data is sourced from the Federal Election
+          Commission. Always verify important information with official sources.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a,
+      },
+    })),
+  })} />
+</Base>

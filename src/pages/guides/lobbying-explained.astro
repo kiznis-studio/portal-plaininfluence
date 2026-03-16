@@ -1,0 +1,202 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+
+const title = 'Lobbying in America: Who Spends Billions and Why';
+const description = 'How lobbying works in the U.S., what Senate LDA disclosures reveal, which industries spend the most, and how to track lobbying on PlainInfluence.';
+const publishedTime = '2026-03-16';
+
+const faqItems = [
+  {
+    q: 'Is lobbying legal in the United States?',
+    a: 'Yes. Lobbying is protected by the First Amendment right to petition the government. The Lobbying Disclosure Act of 1995 (amended in 2007) does not restrict lobbying but requires transparency — lobbyists must register and regularly report their activities, clients, issues, and spending. This disclosure data is what PlainInfluence uses to track lobbying activity.',
+  },
+  {
+    q: 'How much does the lobbying industry spend annually?',
+    a: 'Total reported lobbying expenditures in the United States typically exceed $4 billion per year. This figure only includes spending that meets the legal threshold for disclosure — actual influence spending, including grassroots campaigns and strategic consulting that falls below reporting requirements, is likely much higher.',
+  },
+  {
+    q: 'What is the revolving door between government and lobbying?',
+    a: 'The "revolving door" refers to the movement of individuals between government positions and lobbying firms. Former members of Congress, congressional staffers, and executive branch officials often become lobbyists, leveraging their relationships and expertise. Current law imposes cooling-off periods (1-2 years depending on position) before former officials can lobby their former colleagues, but critics argue these restrictions are insufficient.',
+  },
+  {
+    q: 'What are the 79 lobbying issue areas on PlainInfluence?',
+    a: 'The Senate requires lobbyists to categorize their activities by issue area — standardized categories like healthcare, defense, taxation, trade, energy, and technology. PlainInfluence tracks all 79 issue codes, showing which organizations lobby on which topics and how much they spend. Browse all issues on the issues directory to explore by category.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  article={true}
+  publishedTime={publishedTime}
+  breadcrumbs={[
+    { name: 'Home', href: '/' },
+    { name: 'Guides', href: '/guides/' },
+    { name: 'Lobbying Explained' },
+  ]}
+>
+  <article class="py-8 md:py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <header class="mb-8">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3">Lobbying</span>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+        <p class="text-lg text-[var(--color-muted)]">
+          Lobbying is a multi-billion dollar industry that shapes legislation, regulation,
+          and government spending. Here is how it works and how to follow the money.
+        </p>
+      </header>
+
+      <!-- Key Takeaway -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 rounded-r-lg p-4 mb-8">
+        <p class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-1">Key Takeaway</p>
+        <p class="text-sm text-[var(--color-foreground)]">
+          Lobbying is legal and protected by the First Amendment, but it is also a massive industry
+          where corporations, trade associations, and interest groups spend billions annually to influence
+          policy. The Senate Lobbying Disclosure Act requires all this spending to be reported publicly,
+          and PlainInfluence makes that data searchable across 79 issue areas and 9,940 organizations.
+        </p>
+      </div>
+
+      <div class="prose dark:prose-invert max-w-none text-[var(--color-muted)] [&_h2]:text-[var(--color-foreground)] [&_h3]:text-[var(--color-foreground)] [&_strong]:text-[var(--color-foreground)]">
+
+        <h2>What Is Lobbying?</h2>
+        <p>
+          At its core, lobbying is the act of attempting to influence government decisions. When a
+          corporation hires a firm to advocate for favorable tax policy, when a nonprofit urges Congress
+          to fund a particular program, or when an industry trade group pushes for regulatory changes —
+          that is lobbying.
+        </p>
+        <p>
+          The practice is as old as American democracy itself. The First Amendment protects the right
+          "to petition the Government for a redress of grievances," and lobbying is the organized,
+          professional form of that right. What makes modern lobbying distinctive is its scale, its
+          professionalization, and the transparency requirements that surround it.
+        </p>
+
+        <h2>How the Disclosure System Works</h2>
+        <p>
+          The Lobbying Disclosure Act (LDA) of 1995, significantly strengthened by the Honest Leadership
+          and Open Government Act of 2007, creates the transparency framework that makes data like
+          PlainInfluence possible. Here is what the law requires:
+        </p>
+        <ul>
+          <li><strong>Registration</strong> — Lobbyists must register with the Secretary of the Senate and the Clerk of the House within 45 days of making contact on behalf of a client.</li>
+          <li><strong>Quarterly reports (LD-2)</strong> — Registered lobbyists file reports disclosing their clients, the issues they lobbied on, the agencies and chambers they contacted, and the income received (or expenses incurred) for lobbying activities.</li>
+          <li><strong>Semiannual reports (LD-203)</strong> — Lobbyists and lobbying firms disclose political contributions made to federal candidates, PACs, and party committees.</li>
+          <li><strong>Issue codes</strong> — Each lobbying activity is tagged with one or more of 79 standardized issue categories, from "Agriculture" to "Welfare."</li>
+        </ul>
+        <p>
+          These filings are made with the Senate Office of Public Records and are available to the public.
+          PlainInfluence processes this data and links it to the same organizations' campaign contributions
+          and federal contracts.
+        </p>
+
+        <h2>Who Spends the Most on Lobbying?</h2>
+        <p>
+          Lobbying spending is dominated by a few sectors that have the most at stake in federal policy:
+        </p>
+        <ul>
+          <li><strong>Healthcare and pharmaceuticals</strong> — Consistently the top-spending sector, driven by Medicare/Medicaid policy, drug pricing legislation, and FDA regulation.</li>
+          <li><strong>Technology</strong> — Major tech companies have dramatically increased their lobbying presence as Congress considers antitrust, privacy, AI regulation, and content moderation laws.</li>
+          <li><strong>Defense and aerospace</strong> — Military contractors lobby on defense authorization, appropriations, and weapons programs.</li>
+          <li><strong>Finance and insurance</strong> — Banks, insurers, and investment firms lobby on financial regulation, tax policy, and consumer protection rules.</li>
+          <li><strong>Energy</strong> — Oil, gas, renewable energy, and utility companies lobby on environmental regulation, subsidies, and permitting.</li>
+        </ul>
+        <p>
+          Explore spending by industry and issue on the <a href="/issues/">issues directory</a>,
+          or browse the <a href="/organizations/">organizations directory</a> to see individual
+          lobbying profiles.
+        </p>
+
+        <h2>The 79 Lobbying Issue Areas</h2>
+        <p>
+          The Senate requires lobbyists to classify their activities using standardized issue codes.
+          PlainInfluence tracks all 79 of these categories, providing a comprehensive view of what
+          corporate America is trying to influence. The most active issues typically include:
+        </p>
+        <ul>
+          <li>Health Issues (HCR) — drug pricing, Medicare, public health</li>
+          <li>Defense (DEF) — military spending, weapons systems, base closures</li>
+          <li>Taxation (TAX) — corporate tax rates, deductions, international tax</li>
+          <li>Trade (TRD) — tariffs, trade agreements, export controls</li>
+          <li>Energy/Nuclear (ENG) — energy policy, pipeline regulation, renewables</li>
+          <li>Transportation (TRA) — infrastructure, aviation, shipping</li>
+        </ul>
+        <p>
+          Each issue page on PlainInfluence shows which organizations are lobbying on that topic and
+          how much they are spending. Visit the <a href="/issues/">full issues list</a> to explore.
+        </p>
+
+        <h2>Lobbying and the Broader Influence Ecosystem</h2>
+        <p>
+          Lobbying does not exist in isolation. On PlainInfluence, you can see how lobbying intersects
+          with two other forms of political influence:
+        </p>
+        <ul>
+          <li><strong>Campaign contributions</strong> — Many lobbying organizations also operate PACs that donate to politicians. These donations can complement lobbying by building relationships with key lawmakers.</li>
+          <li><strong>Federal contracts</strong> — Organizations that lobby for favorable procurement policies may also compete for government contracts. The overlap between lobbying spenders and contract recipients is a common focus of accountability journalism.</li>
+        </ul>
+        <p>
+          PlainInfluence's entity resolution links these records, so you can see the full scope of an
+          organization's political engagement in one place.
+        </p>
+
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- FAQ -->
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+          {faqItems.map((item, i) => (
+            <details class="card p-4 group" open={i === 0}>
+              <summary class="font-medium text-[var(--color-foreground)] cursor-pointer list-none flex items-center justify-between gap-4">
+                {item.q}
+                <svg class="w-5 h-5 shrink-0 text-[var(--color-muted)] group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="mt-3 text-sm text-[var(--color-muted)]">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="mt-10 border-t border-[var(--color-border)] pt-6">
+        <h2 class="text-lg font-semibold mb-3">Sources</h2>
+        <ul class="text-sm text-[var(--color-muted)] space-y-1">
+          <li><a href="https://lda.senate.gov/system/public/" class="text-indigo-600 dark:text-indigo-400 hover:underline">Senate Lobbying Disclosure Act Database</a> — Official lobbying registration and activity reports</li>
+          <li><a href="https://lobbyingdisclosure.house.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">House Lobbying Disclosure</a> — House of Representatives lobbying filings</li>
+          <li><a href="https://www.fec.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">Federal Election Commission</a> — Campaign contribution data for lobbyist-connected PACs</li>
+          <li><a href="https://www.usaspending.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">USAspending.gov</a> — Federal contract awards to lobbying organizations</li>
+        </ul>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="mt-8 p-4 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)]">
+        <p class="text-xs text-[var(--color-muted)]">
+          This content is for informational purposes. PlainInfluence is nonpartisan and does not
+          endorse any candidate or party. Lobbying data is sourced from the Senate Lobbying
+          Disclosure Act filings. Always verify important information with official sources.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a,
+      },
+    })),
+  })} />
+</Base>

@@ -1,0 +1,240 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+
+const title = 'Campaign Finance 101: PACs, Super PACs, and Dark Money Explained';
+const description = 'Understand the different types of political committees, contribution limits, how money flows from donors to candidates, and what dark money means.';
+const publishedTime = '2026-03-16';
+
+const faqItems = [
+  {
+    q: 'What is the maximum amount someone can donate to a political candidate?',
+    a: 'For the 2023-2024 election cycle, individuals can contribute up to $3,300 per candidate per election ($6,600 total for primary and general). PACs can give up to $5,000 per candidate per election. These limits are adjusted for inflation every two years by the FEC. Super PACs have no contribution limits but cannot coordinate with campaigns.',
+  },
+  {
+    q: 'Why is it called "dark money"?',
+    a: 'Dark money refers to political spending by nonprofit organizations — typically 501(c)(4) social welfare organizations and 501(c)(6) trade associations — that are not required to disclose their donors. While these groups must report their spending to the FEC if they engage in certain election-related activities, the original source of their funds remains hidden from the public. The term reflects the lack of transparency, not illegality.',
+  },
+  {
+    q: 'Can corporations donate directly to candidates?',
+    a: 'No. Federal law prohibits corporations and labor unions from making direct contributions to federal candidates. However, they can establish PACs (called "separate segregated funds" or SSFs) that collect voluntary contributions from employees, executives, or members. Corporations can also spend unlimited amounts on independent expenditures through Super PACs, as long as there is no coordination with the candidate\'s campaign.',
+  },
+  {
+    q: 'How can I find out who funds a specific politician?',
+    a: 'PlainInfluence makes this easy. Visit the politicians directory or use the search bar on the homepage to find any federal candidate. Their profile page shows all PAC contributions they have received, sorted by amount. You can click through to any contributing organization to see its full influence profile, including lobbying spending and federal contracts. For individual donor data, you can also check the FEC website directly.',
+  },
+  {
+    q: 'What is the difference between hard money and soft money?',
+    a: 'Hard money refers to contributions that are regulated by federal election law — subject to disclosure requirements and contribution limits. This includes donations to candidate committees, PACs, and party committees. Soft money historically referred to unregulated donations to political parties for "party-building activities," but the Bipartisan Campaign Reform Act of 2002 (McCain-Feingold) largely banned soft money contributions to national parties. Today, the term is sometimes used loosely to describe any less-regulated political spending.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  article={true}
+  publishedTime={publishedTime}
+  breadcrumbs={[
+    { name: 'Home', href: '/' },
+    { name: 'Guides', href: '/guides/' },
+    { name: 'Campaign Finance 101' },
+  ]}
+>
+  <article class="py-8 md:py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <header class="mb-8">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3">Explainer</span>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+        <p class="text-lg text-[var(--color-muted)]">
+          The U.S. campaign finance system is built on a patchwork of laws, court decisions,
+          and regulatory interpretations. Here is how the different pieces fit together.
+        </p>
+      </header>
+
+      <!-- Key Takeaway -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 rounded-r-lg p-4 mb-8">
+        <p class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-1">Key Takeaway</p>
+        <p class="text-sm text-[var(--color-foreground)]">
+          Political money flows through multiple channels — PACs, Super PACs, party committees,
+          and nonprofit "dark money" groups — each with different rules and transparency requirements.
+          Understanding these distinctions is essential for interpreting campaign finance data on
+          PlainInfluence and elsewhere.
+        </p>
+      </div>
+
+      <div class="prose dark:prose-invert max-w-none text-[var(--color-muted)] [&_h2]:text-[var(--color-foreground)] [&_h3]:text-[var(--color-foreground)] [&_strong]:text-[var(--color-foreground)]">
+
+        <h2>The Building Blocks: Types of Political Committees</h2>
+        <p>
+          Federal campaign finance revolves around several types of political committees, each with
+          distinct rules about who can contribute, how much, and what must be disclosed. Understanding
+          these categories is the foundation of campaign finance literacy.
+        </p>
+
+        <h3>Candidate Committees</h3>
+        <p>
+          Every federal candidate must establish a principal campaign committee to receive contributions
+          and make expenditures. These committees are subject to the strictest contribution limits — for
+          the 2023-2024 cycle, individuals can give up to $3,300 per election, and PACs can give up to
+          $5,000 per election. All contributions above $200 must be itemized with the donor's name,
+          employer, and occupation.
+        </p>
+
+        <h3>Political Action Committees (PACs)</h3>
+        <p>
+          Traditional PACs are the workhorses of organized political giving. They come in two main varieties:
+        </p>
+        <ul>
+          <li><strong>Connected PACs (SSFs)</strong> — Established by corporations, labor unions, or trade associations. The sponsoring organization pays administrative costs, while the PAC collects voluntary contributions from employees or members. These are the most common type visible on PlainInfluence.</li>
+          <li><strong>Nonconnected PACs</strong> — Independent committees not tied to a corporation or union. They must pay their own operating costs from contributions received. Many ideological and single-issue groups operate as nonconnected PACs.</li>
+        </ul>
+        <p>
+          PACs can contribute up to $5,000 per candidate per election, and must disclose all donors
+          who give more than $200. The FEC data on PlainInfluence tracks PAC-to-candidate contributions,
+          letting you see which organizations fund which <a href="/politicians/">politicians</a>.
+        </p>
+
+        <h3>Super PACs (Independent Expenditure Committees)</h3>
+        <p>
+          Created in the wake of the Supreme Court's <em>Citizens United v. FEC</em> (2010) and the
+          D.C. Circuit's <em>SpeechNow.org v. FEC</em> (2010) decisions, Super PACs can raise and spend
+          unlimited amounts of money on elections. The crucial restriction: they cannot contribute directly
+          to candidates or coordinate their spending with campaigns.
+        </p>
+        <p>
+          In practice, Super PACs run TV ads, digital campaigns, and direct mail supporting or opposing
+          candidates. They must disclose their donors, but some receive funding from nonprofit organizations
+          that do not disclose their own donors — creating a transparency gap.
+        </p>
+
+        <!-- Warning callout -->
+        <div class="not-prose border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-950/30 rounded-r-lg p-4 my-6">
+          <p class="font-semibold text-amber-600 dark:text-amber-400 text-sm mb-1">Important Distinction</p>
+          <p class="text-sm text-[var(--color-foreground)]">
+            Despite their name, Super PACs are fundamentally different from traditional PACs. A regular
+            PAC gives money directly to candidates (with limits). A Super PAC spends independently (without
+            limits) and cannot give to candidates at all. The two should not be confused.
+          </p>
+        </div>
+
+        <h3>Party Committees</h3>
+        <p>
+          National, state, and local party committees (like the DNC, RNC, DCCC, NRSC) can receive
+          contributions from individuals and PACs, subject to separate — and often higher — limits.
+          Party committees can transfer funds between each other and coordinate spending with their
+          candidates to a degree that other committees cannot.
+        </p>
+
+        <h2>How Money Flows: The Contribution Pipeline</h2>
+        <p>
+          Understanding where political money comes from and where it goes requires tracing multiple
+          pathways:
+        </p>
+        <ol>
+          <li><strong>Individuals to candidates</strong> — Direct contributions, limited to $3,300 per election. The most transparent form of political giving.</li>
+          <li><strong>Individuals to PACs</strong> — Contributions pool into an organizational fund, which then distributes to candidates strategically.</li>
+          <li><strong>PACs to candidates</strong> — Limited to $5,000 per election. This is the primary data shown on <a href="/politicians/">PlainInfluence politician profiles</a>.</li>
+          <li><strong>Individuals/corporations to Super PACs</strong> — Unlimited amounts for independent expenditures.</li>
+          <li><strong>Donors to 501(c)(4) nonprofits</strong> — Not disclosed publicly. These groups may then fund Super PACs or run their own election activities.</li>
+        </ol>
+
+        <h2>Dark Money: The Transparency Gap</h2>
+        <p>
+          "Dark money" refers to election spending by organizations that are not required to disclose
+          their donors. The most common vehicles are:
+        </p>
+        <ul>
+          <li><strong>501(c)(4) organizations</strong> — Social welfare nonprofits that can engage in political activity as long as it is not their "primary purpose." They disclose spending to the FEC but not their donors.</li>
+          <li><strong>501(c)(6) organizations</strong> — Trade associations and business leagues. Same donor non-disclosure applies.</li>
+          <li><strong>LLCs and shell companies</strong> — Sometimes used to funnel contributions through layers of entities, obscuring the original source.</li>
+        </ul>
+        <p>
+          Dark money has grown significantly since Citizens United. While PlainInfluence tracks disclosed
+          PAC contributions and lobbying spending, the dark money layer operates largely outside the
+          disclosure system. This is an ongoing area of policy debate and proposed legislation.
+        </p>
+
+        <h2>Contribution Limits at a Glance</h2>
+        <p>
+          The FEC sets contribution limits that are adjusted for inflation every two years.
+          For the 2023-2024 cycle, key limits include:
+        </p>
+        <ul>
+          <li>Individual to candidate: <strong>$3,300 per election</strong></li>
+          <li>Individual to national party: <strong>$41,300 per year</strong></li>
+          <li>Individual to PAC: <strong>$5,000 per year</strong></li>
+          <li>PAC to candidate: <strong>$5,000 per election</strong></li>
+          <li>PAC to national party: <strong>$15,000 per year</strong></li>
+          <li>Individual to Super PAC: <strong>Unlimited</strong></li>
+        </ul>
+
+        <h2>Researching Campaign Finance on PlainInfluence</h2>
+        <p>
+          PlainInfluence focuses on the most transparent layer of campaign finance — PAC contributions
+          to federal candidates — and enriches it with lobbying and contract data:
+        </p>
+        <ul>
+          <li>Browse <a href="/politicians/">all politicians</a> to see who receives the most PAC money.</li>
+          <li>Browse <a href="/organizations/">all organizations</a> to see which entities operate the largest PACs.</li>
+          <li>Every organization profile links PAC contributions with lobbying expenditures and federal contracts — the full influence picture.</li>
+        </ul>
+
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- FAQ -->
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+          {faqItems.map((item, i) => (
+            <details class="card p-4 group" open={i === 0}>
+              <summary class="font-medium text-[var(--color-foreground)] cursor-pointer list-none flex items-center justify-between gap-4">
+                {item.q}
+                <svg class="w-5 h-5 shrink-0 text-[var(--color-muted)] group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="mt-3 text-sm text-[var(--color-muted)]">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="mt-10 border-t border-[var(--color-border)] pt-6">
+        <h2 class="text-lg font-semibold mb-3">Sources</h2>
+        <ul class="text-sm text-[var(--color-muted)] space-y-1">
+          <li><a href="https://www.fec.gov/introduction-campaign-finance/" class="text-indigo-600 dark:text-indigo-400 hover:underline">FEC Introduction to Campaign Finance</a> — Official overview of contribution rules</li>
+          <li><a href="https://www.fec.gov/help-candidates-and-committees/candidate-taking-receipts/contribution-limits/" class="text-indigo-600 dark:text-indigo-400 hover:underline">FEC Contribution Limits</a> — Current federal contribution limits</li>
+          <li><a href="https://www.fec.gov/data/browse-data/?tab=bulk-data" class="text-indigo-600 dark:text-indigo-400 hover:underline">FEC Bulk Data</a> — Committee and contribution filings</li>
+          <li><a href="https://lda.senate.gov/system/public/" class="text-indigo-600 dark:text-indigo-400 hover:underline">Senate LDA Database</a> — Lobbying disclosure filings</li>
+        </ul>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="mt-8 p-4 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)]">
+        <p class="text-xs text-[var(--color-muted)]">
+          This content is for informational purposes. PlainInfluence is nonpartisan and does not
+          endorse any candidate or party. Campaign finance rules change periodically — check the
+          FEC website for the most current limits and regulations. Always verify important information
+          with official sources.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a,
+      },
+    })),
+  })} />
+</Base>

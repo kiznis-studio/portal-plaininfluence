@@ -1,0 +1,205 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+
+const title = 'Top Government Contractors: Who Gets the Most Federal Money';
+const description = 'Explore the largest federal contractors, how contract awards work, and where hundreds of billions in taxpayer money go each year.';
+const publishedTime = '2026-03-16';
+
+const faqItems = [
+  {
+    q: 'How does the federal government award contracts?',
+    a: 'Federal agencies award contracts through a competitive process governed by the Federal Acquisition Regulation (FAR). Most contracts above $250,000 must be openly competed, though some are awarded on a sole-source basis for specialized needs. Agencies post requirements on SAM.gov, evaluate proposals, and award to the best-value bidder. All awards above $10,000 are reported to the Federal Procurement Data System (FPDS) and published on USAspending.gov.',
+  },
+  {
+    q: 'What is the difference between defense and civilian contracts?',
+    a: 'Defense contracts are awarded by the Department of Defense and related agencies (Army, Navy, Air Force, Defense Logistics Agency) for military equipment, services, and operations. Civilian contracts cover everything else — healthcare services (HHS), IT systems (GSA), construction (Army Corps of Engineers), and research (NASA, DOE). Defense typically accounts for about 60-70% of total federal contract spending.',
+  },
+  {
+    q: 'Do government contractors also lobby Congress?',
+    a: 'Yes, many of the largest government contractors are also among the biggest lobbying spenders. This is legal and disclosed through Senate LDA filings. On PlainInfluence, you can see an organization\'s contract awards alongside its lobbying expenditures and campaign contributions — all in one profile. Browse the organizations directory to explore these connections.',
+  },
+  {
+    q: 'Can small businesses win federal contracts?',
+    a: 'The federal government has a goal of awarding at least 23% of prime contract dollars to small businesses. Agencies use set-aside programs for small businesses, women-owned businesses, service-disabled veteran-owned businesses, and businesses in Historically Underutilized Business Zones (HUBZones). Despite these programs, the largest share of contract dollars goes to major corporations.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  article={true}
+  publishedTime={publishedTime}
+  breadcrumbs={[
+    { name: 'Home', href: '/' },
+    { name: 'Guides', href: '/guides/' },
+    { name: 'Top Government Contractors' },
+  ]}
+>
+  <article class="py-8 md:py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <header class="mb-8">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3">Federal Contracts</span>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+        <p class="text-lg text-[var(--color-muted)]">
+          The federal government spends over $700 billion annually on contracts. Here is who gets that
+          money, how the system works, and what the data reveals.
+        </p>
+      </header>
+
+      <!-- Key Takeaway -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 rounded-r-lg p-4 mb-8">
+        <p class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-1">Key Takeaway</p>
+        <p class="text-sm text-[var(--color-foreground)]">
+          A handful of companies receive the largest share of federal contract dollars, and many of them
+          are simultaneously among the biggest lobbying spenders and political donors. USAspending.gov
+          makes all contract awards public, and PlainInfluence connects this data to lobbying and campaign
+          finance records.
+        </p>
+      </div>
+
+      <div class="prose dark:prose-invert max-w-none text-[var(--color-muted)] [&_h2]:text-[var(--color-foreground)] [&_h3]:text-[var(--color-foreground)] [&_strong]:text-[var(--color-foreground)]">
+
+        <h2>The Scale of Federal Contracting</h2>
+        <p>
+          The U.S. federal government is the world's largest buyer. Each year, federal agencies award
+          contracts for everything from fighter jets and satellites to office supplies and IT consulting.
+          The total value of federal contracts typically exceeds $700 billion annually, making government
+          procurement one of the most significant drivers of the American economy.
+        </p>
+        <p>
+          All of this spending is tracked and published through USAspending.gov, a transparency initiative
+          that makes contract award data available to the public. PlainInfluence incorporates this data
+          and links it to the organizations' lobbying and campaign contribution records.
+        </p>
+
+        <h2>Defense vs. Civilian Spending</h2>
+        <p>
+          Federal contract spending falls into two broad categories, and the split reveals national priorities:
+        </p>
+        <ul>
+          <li><strong>Defense contracts</strong> account for roughly 60-70% of total contract spending. The Department of Defense, along with the Army, Navy, Air Force, and Defense Logistics Agency, awards hundreds of billions annually for weapons systems, military equipment, base operations, and professional services.</li>
+          <li><strong>Civilian contracts</strong> cover the remainder — healthcare delivery (HHS, VA), technology infrastructure (GSA, DHS), scientific research (NASA, DOE, NIH), and infrastructure projects (Army Corps of Engineers, DOT).</li>
+        </ul>
+        <p>
+          The dominance of defense spending means that the top government contractors are overwhelmingly
+          defense and aerospace companies. However, technology companies and healthcare services firms
+          have grown their share significantly in recent years.
+        </p>
+
+        <h2>How Contract Awards Work</h2>
+        <p>
+          Federal procurement follows a structured process designed to ensure competition and accountability:
+        </p>
+        <ol>
+          <li><strong>Requirement definition</strong> — An agency identifies a need and develops a statement of work or specifications.</li>
+          <li><strong>Solicitation</strong> — The opportunity is posted on SAM.gov (formerly FedBizOpps) for contractors to see and respond to.</li>
+          <li><strong>Proposal evaluation</strong> — A source selection team evaluates proposals based on technical merit, past performance, and price.</li>
+          <li><strong>Award</strong> — The contract is awarded and reported to FPDS, which feeds into USAspending.gov.</li>
+          <li><strong>Performance and oversight</strong> — The contractor delivers, and the agency's contracting officer monitors performance.</li>
+        </ol>
+        <p>
+          Not all contracts go through full competition. Sole-source awards, emergency contracts, and
+          contracts below certain thresholds may bypass the competitive process. These exceptions are
+          tracked and reported but represent a smaller share of total spending.
+        </p>
+
+        <h2>The Concentration of Contract Dollars</h2>
+        <p>
+          Federal contracting follows a power law distribution — a small number of companies receive a
+          disproportionate share of the total spending. The top 10 federal contractors typically account
+          for over 25% of all contract dollars, while thousands of smaller contractors split the remainder.
+        </p>
+        <p>
+          You can explore the largest recipients on the <a href="/rankings/">rankings page</a> and drill
+          into any organization's profile in the <a href="/organizations/">organizations directory</a> to
+          see the breakdown of their contract awards by awarding agency.
+        </p>
+
+        <h2>The Influence Connection</h2>
+        <p>
+          What makes government contracting data especially interesting is its intersection with lobbying
+          and campaign finance. Many of the largest federal contractors also maintain active lobbying
+          operations and contribute to political campaigns through their PACs. This creates a cycle worth
+          examining:
+        </p>
+        <ul>
+          <li>Organizations contribute to politicians' campaigns through PACs</li>
+          <li>Organizations lobby Congress and agencies on procurement policies and budgets</li>
+          <li>Organizations compete for and receive government contracts</li>
+        </ul>
+        <p>
+          This does not mean the system is corrupt — government contracting is heavily regulated. But
+          understanding these connections is essential for informed oversight. PlainInfluence's entity
+          resolution links these datasets so you can see the full picture for any organization.
+        </p>
+
+        <h2>How to Use PlainInfluence for Contract Research</h2>
+        <p>
+          PlainInfluence makes it straightforward to research federal contractors:
+        </p>
+        <ul>
+          <li>Browse the <a href="/organizations/">organizations directory</a> to find companies by name or sector.</li>
+          <li>Each organization profile shows contract awards alongside lobbying and PAC contributions.</li>
+          <li>Use <a href="/rankings/">rankings</a> to see the top contractors by total contract value.</li>
+          <li>Cross-reference with politician profiles to see which elected officials receive donations from major contractors.</li>
+        </ul>
+
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- FAQ -->
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+          {faqItems.map((item, i) => (
+            <details class="card p-4 group" open={i === 0}>
+              <summary class="font-medium text-[var(--color-foreground)] cursor-pointer list-none flex items-center justify-between gap-4">
+                {item.q}
+                <svg class="w-5 h-5 shrink-0 text-[var(--color-muted)] group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="mt-3 text-sm text-[var(--color-muted)]">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <div class="mt-10 border-t border-[var(--color-border)] pt-6">
+        <h2 class="text-lg font-semibold mb-3">Sources</h2>
+        <ul class="text-sm text-[var(--color-muted)] space-y-1">
+          <li><a href="https://www.usaspending.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">USAspending.gov</a> — Official source for federal spending data</li>
+          <li><a href="https://www.fpds.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">Federal Procurement Data System (FPDS)</a> — Contract award reporting system</li>
+          <li><a href="https://sam.gov/" class="text-indigo-600 dark:text-indigo-400 hover:underline">SAM.gov</a> — System for Award Management and contract opportunities</li>
+          <li><a href="https://www.acquisition.gov/browse/index/far" class="text-indigo-600 dark:text-indigo-400 hover:underline">Federal Acquisition Regulation (FAR)</a> — Rules governing federal procurement</li>
+        </ul>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="mt-8 p-4 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)]">
+        <p class="text-xs text-[var(--color-muted)]">
+          This content is for informational purposes. PlainInfluence is nonpartisan and does not
+          endorse any candidate or party. Federal contract data is sourced from USAspending.gov.
+          Always verify important information with official sources.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a,
+      },
+    })),
+  })} />
+</Base>

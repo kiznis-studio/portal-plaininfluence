@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const guides = [
+  {
+    title: 'Follow the Money: How to Look Up Political Donations',
+    href: '/guides/follow-the-money',
+    description: 'Learn how FEC data works, what PAC contributions mean, and how to use PlainInfluence to look up any politician\'s donors.',
+    tag: 'Campaign Finance',
+  },
+  {
+    title: 'Top Government Contractors: Who Gets the Most Federal Money',
+    href: '/guides/top-government-contractors',
+    description: 'Explore the largest federal contractors, how contract awards work, and where billions in taxpayer money goes each year.',
+    tag: 'Federal Contracts',
+  },
+  {
+    title: 'Lobbying in America: Who Spends Billions and Why',
+    href: '/guides/lobbying-explained',
+    description: 'How lobbying works, what Senate LDA disclosures reveal, and which industries spend the most to influence policy.',
+    tag: 'Lobbying',
+  },
+  {
+    title: 'Campaign Finance 101: PACs, Super PACs, and Dark Money Explained',
+    href: '/guides/campaign-finance-101',
+    description: 'Understand the different types of political committees, contribution limits, and how money flows from donors to candidates.',
+    tag: 'Explainer',
+  },
+];
+---
+
+<Base
+  title="Guides"
+  description="In-depth guides to understanding political money — campaign finance, lobbying, federal contracts, and how to follow the money in U.S. politics."
+  breadcrumbs={[
+    { name: 'Home', href: '/' },
+    { name: 'Guides' },
+  ]}
+>
+  <section class="py-8 md:py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Guides</h1>
+      <p class="text-[var(--color-muted)] mb-8 max-w-2xl">
+        In-depth explainers on campaign finance, lobbying, federal contracts, and
+        how to use PlainInfluence to follow the money in U.S. politics.
+      </p>
+
+      <div class="grid gap-4">
+        {guides.map(guide => (
+          <a href={guide.href} class="card hover:no-underline group py-5 px-5">
+            <div class="flex items-start gap-4">
+              <div class="flex-1 min-w-0">
+                <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 mb-2">
+                  {guide.tag}
+                </span>
+                <h2 class="text-lg font-semibold text-[var(--color-foreground)] group-hover:text-[var(--color-accent)] transition-colors mb-1">
+                  {guide.title}
+                </h2>
+                <p class="text-sm text-[var(--color-muted)]">{guide.description}</p>
+              </div>
+              <svg class="w-5 h-5 mt-1 text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
