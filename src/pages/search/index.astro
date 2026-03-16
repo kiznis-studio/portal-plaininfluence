@@ -1,0 +1,100 @@
+---
+import Base from '../../layouts/Base.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { searchAll } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const query = Astro.url.searchParams.get('q') || '';
+const results = query.length >= 2 ? await searchAll(db, query) : { politicians: [], entities: [] };
+const totalResults = results.politicians.length + results.entities.length;
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function partyClass(p: string | null): string {
+  if (p === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (p === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyShort(p: string | null): string {
+  if (p === 'DEM') return 'D';
+  if (p === 'REP') return 'R';
+  if (p === 'IND') return 'I';
+  return p || '?';
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Search' },
+];
+---
+
+<Base
+  title={query ? `Search: "${query}"` : 'Search'}
+  description={query ? `Search results for "${query}" — politicians and organizations in U.S. political finance.` : 'Search politicians and organizations.'}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl font-bold mb-6">Search</h1>
+
+      <form method="get" class="max-w-xl mb-8">
+        <div class="flex gap-2">
+          <input type="text" name="q" value={query} placeholder="Search politicians or organizations..." class="input flex-1" autocomplete="off" />
+          <button type="submit" class="btn btn-primary px-6">Search</button>
+        </div>
+      </form>
+
+      {query && query.length < 2 && (
+        <p class="text-[var(--color-muted)]">Please enter at least 2 characters.</p>
+      )}
+
+      {query && query.length >= 2 && totalResults === 0 && (
+        <p class="text-[var(--color-muted)]">No results found for "{query}".</p>
+      )}
+
+      {results.politicians.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-xl font-bold mb-4">Politicians ({results.politicians.length})</h2>
+          <div class="grid gap-3">
+            {results.politicians.map(p => (
+              <a href={`/politician/${p.fec_id}`} class="card flex items-center gap-4 hover:no-underline py-3 px-4">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-[var(--color-foreground)]">{p.name}</div>
+                  <div class="text-xs text-[var(--color-muted)]">
+                    <span class={partyClass(p.party)}>{partyShort(p.party)}</span>
+                    {p.state ? ` - ${p.state}` : ''}
+                  </div>
+                </div>
+                <div class="text-sm font-medium">{fmtMoney(p.total_received)}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {results.entities.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-xl font-bold mb-4">Organizations ({results.entities.length})</h2>
+          <div class="grid gap-3">
+            {results.entities.map(e => (
+              <a href={`/organization/${e.id}`} class="card flex items-center gap-4 hover:no-underline py-3 px-4">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-[var(--color-foreground)]">{e.name}</div>
+                  <div class="text-xs text-[var(--color-muted)] capitalize">{e.type || 'Organization'}</div>
+                </div>
+                <div class="text-sm font-medium">{fmtMoney(e.total_influence)}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</Base>

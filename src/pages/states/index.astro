@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getStateList } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const states = await getStateList(db);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'States' },
+];
+---
+
+<Base
+  title="Political Money by State — Contributions, Lobbying & Contracts"
+  description="Browse political spending by state. See total campaign contributions received, lobbying expenditures, and federal contracts awarded for all 56 states and territories."
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Political Money by State</h1>
+      <p class="text-[var(--color-muted)] mb-8 max-w-3xl">
+        Campaign contributions, lobbying, and federal contracts aggregated by state. Click any state for politician-level detail.
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-[var(--color-border)]">
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">State</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden sm:table-cell">Politicians</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Contributions</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden md:table-cell">Lobbying</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden lg:table-cell">Contracts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {states.map(s => (
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors">
+                <td class="py-3 px-4">
+                  <a href={`/state/${s.abbr}`} class="font-medium text-[var(--color-accent)] hover:underline">
+                    {s.name}
+                  </a>
+                  <span class="text-xs text-[var(--color-muted)] ml-1">({s.abbr})</span>
+                </td>
+                <td class="py-3 px-4 text-right text-sm hidden sm:table-cell">{s.politician_count}</td>
+                <td class="py-3 px-4 text-right font-medium">{fmtMoney(s.total_contributions_received)}</td>
+                <td class="py-3 px-4 text-right text-sm hidden md:table-cell">{fmtMoney(s.total_lobbying_spent)}</td>
+                <td class="py-3 px-4 text-right text-sm hidden lg:table-cell">{fmtMoney(s.total_contracts_awarded)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)] mt-6">
+        Data: FEC, Senate LDA, USAspending.gov. States sorted alphabetically.
+      </p>
+    </div>
+  </section>
+
+  <AdSlot position="mid" />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "U.S. Political Spending by State",
+    "description": "Campaign contributions, lobbying, and federal contracts aggregated by state.",
+    "url": "https://plaininfluence.com/states/",
+    "creator": { "@type": "Organization", "name": "PlainInfluence" },
+    "temporalCoverage": "2023/2024",
+    "spatialCoverage": { "@type": "Place", "name": "United States" },
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

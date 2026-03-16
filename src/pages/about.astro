@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="About PlainInfluence"
+  description="PlainInfluence tracks political money — campaign donations, lobbying, and federal contracts from official federal sources."
+>
+  <section class="py-8 md:py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <h1 class="text-3xl font-bold mb-6">About PlainInfluence</h1>
+      <div class="prose dark:prose-invert max-w-none text-[var(--color-muted)] [&_h2]:text-[var(--color-foreground)] [&_strong]:text-[var(--color-foreground)]">
+        <p>
+          PlainInfluence makes U.S. political finance data accessible to everyone. We combine three
+          federal data sources — campaign contributions (FEC), lobbying disclosures (Senate LDA), and
+          federal contracts (USAspending.gov) — into a single, searchable platform.
+        </p>
+
+        <h2>Our Data</h2>
+        <p>All data comes directly from official federal sources:</p>
+        <ul>
+          <li><strong>Federal Election Commission (FEC)</strong> — Bulk candidate and committee data for the
+          2024 election cycle. Tracks PAC contributions to political candidates.</li>
+          <li><strong>Senate Lobbying Disclosure Act (LDA)</strong> — Lobbying registration and activity reports
+          filed by registered lobbyists, 2023-2024.</li>
+          <li><strong>USAspending.gov</strong> — Federal contract awards from the Federal Procurement Data System (FPDS).
+          Shows which organizations receive government contracts and from which agencies.</li>
+        </ul>
+
+        <h2>Entity Resolution</h2>
+        <p>
+          The key innovation is <strong>entity resolution</strong> — linking the same organization across
+          all three databases. A company like Boeing appears in FEC data as a PAC contributor, in Senate
+          LDA data as a lobbying spender, and in USAspending as a federal contractor. We link these records
+          to show the full picture of an organization's political influence.
+        </p>
+
+        <h2>What We Track</h2>
+        <ul>
+          <li><strong>7,124 politicians</strong> who received PAC contributions</li>
+          <li><strong>9,940 organizations</strong> linked across all three databases</li>
+          <li><strong>79 lobbying issue areas</strong> from health care to defense</li>
+          <li><strong>56 states and territories</strong> with aggregated data</li>
+        </ul>
+
+        <h2>Not Affiliated</h2>
+        <p>
+          PlainInfluence is not affiliated with the FEC, the U.S. Senate, USAspending.gov, or any
+          government agency. We are an independent data portal presenting public information.
+        </p>
+
+        <h2>About Kiznis.Studio</h2>
+        <p>
+          This portal is built and maintained by <strong>Kiznis.Studio</strong>, an independent data
+          publishing studio. We build free, ad-supported portals that make U.S. government data
+          accessible to everyone — no paywalls, no accounts, no data harvesting.
+        </p>
+
+        <h2>Important Disclaimer</h2>
+        <p>
+          <strong>This site is for informational purposes only.</strong> Political finance data is
+          complex and subject to reporting lags. Entity resolution may occasionally link unrelated
+          organizations with similar names. Always verify important information with official sources.
+          This site does not endorse or oppose any political candidate or party.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          For questions or feedback, email <a href="mailto:hello@plaininfluence.com">hello@plaininfluence.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

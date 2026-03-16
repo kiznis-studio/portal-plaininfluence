@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getIssueList } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const issues = await getIssueList(db);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Issues' },
+];
+---
+
+<Base
+  title="Lobbying Issues — Where the Money Goes"
+  description="All lobbying issues ranked by total spending. See which policy areas attract the most lobbying dollars. Senate LDA data."
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Lobbying Issues</h1>
+      <p class="text-[var(--color-muted)] mb-8 max-w-3xl">
+        All {issues.length} lobbying issue areas ranked by total spending. Data from Senate Lobbying Disclosure Act filings.
+      </p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {issues.map(issue => (
+          <a href={`/issue/${issue.code}`} class="card hover:no-underline">
+            <div class="font-medium text-[var(--color-foreground)] mb-2">{issue.name}</div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[var(--color-muted)]">{issue.entity_count} organizations</span>
+              <span class="font-medium">{fmtMoney(issue.total_spending)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)] mt-8">
+        Data: Senate Lobbying Disclosure Act (LDA) filings, 2023-2024. Issue categories defined by the LDA reporting system.
+      </p>
+    </div>
+  </section>
+
+  <AdSlot position="mid" />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "U.S. Lobbying Issues by Spending",
+    "description": "Lobbying issue areas ranked by total spending from Senate LDA filings.",
+    "url": "https://plaininfluence.com/issues/",
+    "creator": { "@type": "Organization", "name": "U.S. Senate" },
+    "temporalCoverage": "2023/2024",
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

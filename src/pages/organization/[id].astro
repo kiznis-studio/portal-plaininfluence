@@ -1,0 +1,206 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getEntity, getEntityPoliticians, getEntityLobbying, getEntityLobbyingIssues, getEntityContracts } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const { id } = Astro.params;
+const entityId = parseInt(id || '0');
+
+const [entity, politicians, lobbying, lobbyingIssues, contracts] = await Promise.all([
+  getEntity(db, entityId),
+  getEntityPoliticians(db, entityId, 50),
+  getEntityLobbying(db, entityId),
+  getEntityLobbyingIssues(db, entityId),
+  getEntityContracts(db, entityId),
+]);
+
+if (!entity) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function partyClass(p: string | null): string {
+  if (p === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (p === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyShort(p: string | null): string {
+  if (p === 'DEM') return 'D';
+  if (p === 'REP') return 'R';
+  if (p === 'IND') return 'I';
+  return p || '?';
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Organizations', href: '/organizations/' },
+  { name: entity.name },
+];
+---
+
+<Base
+  title={`${entity.name} — ${fmtMoney(entity.total_influence)} Total Influence`}
+  description={`Political influence profile for ${entity.name}. Contributions: ${fmtMoney(entity.total_contributions)}, Lobbying: ${fmtMoney(entity.total_lobbying)}, Contracts: ${fmtMoney(entity.total_contracts)}.`}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">{entity.name}</h1>
+      <p class="text-[var(--color-muted)] mb-8 capitalize">
+        {entity.type || 'Organization'}
+        {entity.headquarters_state ? ` — ${entity.headquarters_state}` : ''}
+      </p>
+
+      <!-- Summary Cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Total Influence</div>
+          <div class="text-2xl font-bold">{fmtMoney(entity.total_influence)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Contributions</div>
+          <div class="text-2xl font-bold">{fmtMoney(entity.total_contributions)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Lobbying</div>
+          <div class="text-2xl font-bold">{fmtMoney(entity.total_lobbying)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Contracts</div>
+          <div class="text-2xl font-bold">{fmtMoney(entity.total_contracts)}</div>
+        </div>
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- Politicians Supported -->
+      {politicians.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Politicians Supported</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Politician</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-center">Party</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">State</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {politicians.map(p => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4">
+                      <a href={`/politician/${p.fec_id}`} class="text-[var(--color-accent)] hover:underline font-medium">{p.name}</a>
+                    </td>
+                    <td class={`py-3 px-4 text-center font-medium ${partyClass(p.party)}`}>{partyShort(p.party)}</td>
+                    <td class="py-3 px-4 text-sm hidden sm:table-cell">{p.state || 'N/A'}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(p.contribution_amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <!-- Lobbying by Year -->
+      {lobbying.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Lobbying by Year</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Year</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Amount</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden sm:table-cell">Filings</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden md:table-cell">Lobbyists</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lobbying.map(l => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4 font-medium">{l.year}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(l.total_amount)}</td>
+                    <td class="py-3 px-4 text-right text-sm hidden sm:table-cell">{l.filing_count}</td>
+                    <td class="py-3 px-4 text-right text-sm hidden md:table-cell">{l.lobbyist_count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <!-- Lobbying Issues -->
+      {lobbyingIssues.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Lobbying Issues</h2>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {lobbyingIssues.map(li => (
+              <a href={`/issue/${li.issue_code}`} class="card hover:no-underline py-3">
+                <div class="font-medium text-[var(--color-foreground)]">{li.issue_name}</div>
+                <div class="text-sm text-[var(--color-muted)]">{li.filing_count} filings</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Federal Contracts -->
+      {contracts.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Federal Contracts</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Agency</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Value</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden sm:table-cell">Contracts</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden md:table-cell">Fiscal Year</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contracts.map(c => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4 text-sm">{c.agency}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(c.total_value)}</td>
+                    <td class="py-3 px-4 text-right text-sm hidden sm:table-cell">{c.contract_count}</td>
+                    <td class="py-3 px-4 text-right text-sm hidden md:table-cell">{c.fiscal_year}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <p class="text-xs text-[var(--color-muted)]">
+        Data: FEC (contributions), Senate LDA (lobbying), USAspending.gov (contracts). 2023-2024 data.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": `${entity.name} Political Influence Profile`,
+    "description": `Contributions, lobbying, and federal contracts for ${entity.name}.`,
+    "url": `https://plaininfluence.com/organization/${entity.id}`,
+    "creator": { "@type": "Organization", "name": "PlainInfluence" },
+    "temporalCoverage": "2023/2024",
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

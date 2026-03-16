@@ -1,0 +1,154 @@
+---
+import '../styles/global.css';
+import Meta from '../components/seo/Meta.astro';
+import Schema from '../components/seo/Schema.astro';
+import Header from '../components/ui/Header.astro';
+import Footer from '../components/ui/Footer.astro';
+import AdSlot from '../components/ads/AdSlot.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  section?: string;
+  tags?: string[];
+  breadcrumbs?: Array<{ name: string; href?: string }>;
+}
+
+const props = Astro.props;
+const siteName = "PlainInfluence";
+const siteUrl = 'https://plaininfluence.com';
+const fullTitle = props.title === siteName ? props.title : `${props.title} | ${siteName}`;
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+
+const breadcrumbSchema = (() => {
+  const path = Astro.url.pathname.replace(/\/$/, '');
+  if (path === '' || path === '/') return null;
+  const items = props.breadcrumbs || [
+    { name: 'Home', href: '/' },
+    { name: props.title },
+  ];
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      ...(item.href ? { item: new URL(item.href, siteUrl).href } : {}),
+    })),
+  });
+})();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PlainInfluence" />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <Meta
+      title={fullTitle}
+      description={props.description}
+      image={props.image}
+      article={props.article}
+      publishedTime={props.publishedTime}
+      modifiedTime={props.modifiedTime}
+      author={props.author}
+      section={props.section}
+      tags={props.tags}
+    />
+
+    <Schema
+      type={props.article ? 'article' : 'website'}
+      title={fullTitle}
+      description={props.description}
+      url={canonicalUrl}
+      image={props.image}
+      datePublished={props.publishedTime}
+      dateModified={props.modifiedTime}
+      author={props.author}
+      publisher={{ name: siteName }}
+    />
+    {breadcrumbSchema && <script type="application/ld+json" set:html={breadcrumbSchema} />}
+
+    <script is:inline>
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+
+    <!-- Umami Analytics — TODO: replace with PlainInfluence site ID -->
+    <script defer src="https://analytics.opspixel.com/script.js" data-website-id="TODO"></script>
+    <!-- Google Privacy & Messaging API (enables consent banners configured in AdSense console) -->
+    <script is:inline>
+      window.googlefc = window.googlefc || {};
+      window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+    </script>
+
+    <!-- Google Consent Mode v2 — MUST fire before any Google tags load
+         Docs: https://developers.google.com/tag-platform/security/guides/consent
+         Script order: googlefc init → consent defaults → gtag.js → gtag config → adsbygoogle.js -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments)}
+
+      // Global default: DENY ad-related consent (GDPR-safe for EU/EEA/UK/CH)
+      // Google's Privacy & Messaging will show consent banner and call gtag('consent','update') on accept
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'granted',
+        'functionality_storage': 'granted',
+        'personalization_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+
+      // US: CCPA/CPRA is opt-out model — default granted, user opts out via "Do Not Sell" message
+      gtag('consent', 'default', {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted',
+        'personalization_storage': 'granted',
+        'region': ['US']
+      });
+
+      // Advanced: preserve measurement even when consent denied
+      gtag('set', 'url_passthrough', true);
+      gtag('set', 'ads_data_redaction', true);
+    </script>
+
+    <!-- GA4 — TODO: replace with PlainInfluence measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TODO"></script>
+    <script is:inline>gtag('js',new Date());gtag('config','G-TODO');</script>
+
+    <!-- AdSense (also deploys Privacy & Messaging consent banners configured in AdSense console) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7887321168925353" crossorigin="anonymous"></script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <AdSlot position="top" />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <AdSlot position="bottom" />
+    <Footer />
+  </body>
+</html>

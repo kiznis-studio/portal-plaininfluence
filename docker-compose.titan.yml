@@ -1,0 +1,23 @@
+services:
+  portal-plaininfluence:
+    image: ghcr.io/kiznis-studio/portal-plaininfluence:latest
+    container_name: portal-plaininfluence
+    restart: unless-stopped
+    volumes:
+      - /opt/portals/data/sqlite/plaininfluence.db:/data/portal.db:ro
+    environment:
+      - DATABASE_PATH=/data/portal.db
+      - HOST=0.0.0.0
+      - PORT=4321
+      - WORKERS=1
+      - WORKERS_MAX=4
+      - MGMT_PORT=4322
+    networks:
+      - portals
+    mem_limit: 512m
+    cpus: 0.5
+
+networks:
+  portals:
+    external: true
+    name: portals-net

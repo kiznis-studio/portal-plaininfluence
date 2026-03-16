@@ -1,0 +1,131 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getPoliticianList } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const url = Astro.url;
+const chamber = url.searchParams.get('chamber') || undefined;
+const party = url.searchParams.get('party') || undefined;
+const state = url.searchParams.get('state') || undefined;
+
+const politicians = await getPoliticianList(db, chamber, party, state);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return 'N/A';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function partyClass(p: string | null): string {
+  if (p === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (p === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyLabel(p: string | null): string {
+  if (p === 'DEM') return 'D';
+  if (p === 'REP') return 'R';
+  if (p === 'IND') return 'I';
+  if (p === 'LIB') return 'L';
+  return p || '?';
+}
+
+function officeLabel(o: string | null): string {
+  if (o === 'P') return 'President';
+  if (o === 'S') return 'Senate';
+  if (o === 'H') return 'House';
+  return o || '';
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Politicians' },
+];
+---
+
+<Base
+  title="Politicians — Campaign Finance Recipients"
+  description="Browse politicians by total campaign contributions received. Filter by chamber, party, and state. FEC 2024 cycle data."
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Politicians</h1>
+      <p class="text-[var(--color-muted)] mb-6 max-w-3xl">
+        Campaign finance recipients sorted by total PAC contributions received. FEC 2024 election cycle data.
+      </p>
+
+      <!-- Filters -->
+      <form method="get" class="flex flex-wrap gap-3 mb-8">
+        <select name="chamber" class="input text-sm py-2">
+          <option value="">All Offices</option>
+          <option value="P" selected={chamber === 'P'}>President</option>
+          <option value="S" selected={chamber === 'S'}>Senate</option>
+          <option value="H" selected={chamber === 'H'}>House</option>
+        </select>
+        <select name="party" class="input text-sm py-2">
+          <option value="">All Parties</option>
+          <option value="DEM" selected={party === 'DEM'}>Democrat</option>
+          <option value="REP" selected={party === 'REP'}>Republican</option>
+          <option value="IND" selected={party === 'IND'}>Independent</option>
+          <option value="LIB" selected={party === 'LIB'}>Libertarian</option>
+        </select>
+        <button type="submit" class="btn btn-primary text-sm">Filter</button>
+        {(chamber || party || state) && <a href="/politicians/" class="btn text-sm text-[var(--color-muted)]">Clear</a>}
+      </form>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-[var(--color-border)]">
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Name</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-center">Party</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">State</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden md:table-cell">Office</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Total Received</th>
+            </tr>
+          </thead>
+          <tbody>
+            {politicians.map(p => (
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors">
+                <td class="py-3 px-4">
+                  <a href={`/politician/${p.fec_id}`} class="font-medium text-[var(--color-accent)] hover:underline">
+                    {p.name}
+                  </a>
+                </td>
+                <td class={`py-3 px-4 text-center font-medium ${partyClass(p.party)}`}>
+                  {partyLabel(p.party)}
+                </td>
+                <td class="py-3 px-4 text-sm hidden sm:table-cell">{p.state || 'N/A'}</td>
+                <td class="py-3 px-4 text-sm hidden md:table-cell">{officeLabel(p.office)}</td>
+                <td class="py-3 px-4 text-right font-medium">{fmtMoney(p.total_received)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)] mt-6">
+        Data: Federal Election Commission, 2024 election cycle. Shows PAC contributions only.
+      </p>
+    </div>
+  </section>
+
+  <AdSlot position="mid" />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "U.S. Politicians Campaign Finance Data",
+    "description": "Campaign contributions received by U.S. politicians from PACs and organizations. FEC 2024 cycle.",
+    "url": "https://plaininfluence.com/politicians/",
+    "creator": { "@type": "Organization", "name": "Federal Election Commission" },
+    "temporalCoverage": "2024",
+    "spatialCoverage": { "@type": "Place", "name": "United States" },
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

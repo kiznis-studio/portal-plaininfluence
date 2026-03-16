@@ -1,0 +1,38 @@
+# PlainInfluence
+
+> Follow the money. Campaign donations, lobbying, and federal contracts in one place.
+
+PlainInfluence combines three federal data sources to show the full picture of political influence in the United States.
+
+## Coverage
+- 7,124 politicians who received PAC contributions (FEC 2024 cycle)
+- 9,940 organizations linked across FEC, Senate LDA, and USAspending
+- 79 lobbying issue areas from healthcare to defense
+- 56 states and territories with aggregated data
+- Entity resolution links organizations across all three databases
+
+## Data Sources
+- Federal Election Commission (FEC) — 2024 election cycle bulk data
+- Senate Lobbying Disclosure Act (LDA) — 2023-2024 filings
+- USAspending.gov — Federal contract awards (FPDS)
+
+## Key Pages
+- /politicians/ — Browse politicians by total received
+- /politician/{fec-id} — Individual politician profile with top donors
+- /organizations/ — Browse organizations by total influence
+- /organization/{id} — Organization profile with contributions, lobbying, contracts
+- /issues/ — All lobbying issues by spending
+- /issue/{code} — Issue detail with top spenders
+- /states/ — Political money by state
+- /state/{abbr} — State detail with politicians and organizations
+- /rankings/ — Pre-computed rankings across all categories
+- /search?q= — Search politicians and organizations
+
+## Methodology
+Entity resolution links the same organization across FEC (PAC committees), Senate LDA (lobbying registrants), and USAspending (contractors) using canonical name matching.
+Total influence = contributions + lobbying spending + contract awards.
+
+## Site
+- URL: https://plaininfluence.com
+- Publisher: Kiznis.Studio
+- License: Public domain data, original design copyrighted

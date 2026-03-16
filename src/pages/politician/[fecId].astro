@@ -1,0 +1,163 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getPolitician, getPoliticianDonors } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const { fecId } = Astro.params;
+
+const [politician, donors] = await Promise.all([
+  getPolitician(db, fecId || ''),
+  getPoliticianDonors(db, fecId || '', 50),
+]);
+
+if (!politician) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return 'N/A';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function partyFull(p: string | null): string {
+  if (p === 'DEM') return 'Democrat';
+  if (p === 'REP') return 'Republican';
+  if (p === 'IND') return 'Independent';
+  if (p === 'LIB') return 'Libertarian';
+  if (p === 'GRE') return 'Green';
+  return p || 'Unknown';
+}
+
+function partyClass(p: string | null): string {
+  if (p === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (p === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyShort(p: string | null): string {
+  if (p === 'DEM') return 'D';
+  if (p === 'REP') return 'R';
+  if (p === 'IND') return 'I';
+  return p || '?';
+}
+
+function officeLabel(o: string | null): string {
+  if (o === 'P') return 'President';
+  if (o === 'S') return 'Senate';
+  if (o === 'H') return 'House';
+  return o || '';
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Politicians', href: '/politicians/' },
+  { name: politician.name },
+];
+---
+
+<Base
+  title={`${politician.name} (${partyShort(politician.party)}-${politician.state || 'US'}) — ${fmtMoney(politician.total_received)} Total Received`}
+  description={`Campaign finance profile for ${politician.name}. ${officeLabel(politician.office)} candidate, ${partyFull(politician.party)} party. Total PAC contributions: ${fmtMoney(politician.total_received)}.`}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">{politician.name}</h1>
+      <p class="text-[var(--color-muted)] mb-8">
+        <span class={partyClass(politician.party)}>{partyFull(politician.party)}</span>
+        {politician.state ? ` - ${politician.state}` : ''}
+        {politician.district ? `, District ${politician.district}` : ''}
+        &middot; {officeLabel(politician.office)}
+      </p>
+
+      <!-- Summary Cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Total Received</div>
+          <div class="text-2xl font-bold">{fmtMoney(politician.total_received)}</div>
+          <div class="text-xs text-[var(--color-muted)] mt-1">2024 election cycle</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Office</div>
+          <div class="text-2xl font-bold">{officeLabel(politician.office)}</div>
+          <div class="text-xs text-[var(--color-muted)] mt-1">{politician.incumbent ? 'Incumbent' : 'Challenger/Open'}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Top Donors</div>
+          <div class="text-2xl font-bold">{donors.length}</div>
+          <div class="text-xs text-[var(--color-muted)] mt-1">Contributing organizations</div>
+        </div>
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- Top Donors -->
+      {donors.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Top Donors</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Organization</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">Type</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {donors.map(d => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4">
+                      <a href={`/organization/${d.id}`} class="text-[var(--color-accent)] hover:underline font-medium">{d.name}</a>
+                    </td>
+                    <td class="py-3 px-4 text-sm capitalize hidden sm:table-cell">{d.type || 'N/A'}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(d.contribution_amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <!-- Cross-Links -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold mb-4">Related Data</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="https://plainspending.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">Federal Spending</div>
+            <div class="text-sm text-[var(--color-muted)]">USAspending.gov contract and grant data</div>
+          </a>
+          <a href="https://plaingovjobs.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">Federal Workforce</div>
+            <div class="text-sm text-[var(--color-muted)]">OPM federal employment data</div>
+          </a>
+          <a href="https://plainvisa.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">H-1B Visa Data</div>
+            <div class="text-sm text-[var(--color-muted)]">DOL labor condition applications</div>
+          </a>
+        </div>
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)]">
+        Data: Federal Election Commission, 2024 cycle. Contributions shown are from PACs and organizational committees.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": `${politician.name} Campaign Finance`,
+    "description": `Campaign contributions received by ${politician.name} (${partyFull(politician.party)}, ${politician.state || 'US'}).`,
+    "url": `https://plaininfluence.com/politician/${politician.fec_id}`,
+    "creator": { "@type": "Organization", "name": "Federal Election Commission" },
+    "temporalCoverage": "2024",
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

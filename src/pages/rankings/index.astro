@@ -1,0 +1,127 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getRankings } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+
+const [topPoliticians, topInfluence, topPACContributors, topLobbyingSpenders, topContractors, topLobbyingIssues] = await Promise.all([
+  getRankings(db, 'top_politicians_received'),
+  getRankings(db, 'top_entities_influence'),
+  getRankings(db, 'top_pac_contributors'),
+  getRankings(db, 'top_lobbying_spenders'),
+  getRankings(db, 'top_contractors'),
+  getRankings(db, 'top_lobbying_issues'),
+]);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function detailUrl(r: any): string {
+  if (r.entity_type === 'politician') return `/politician/${r.entity_id}`;
+  if (r.entity_type === 'entity') return `/organization/${r.entity_id}`;
+  if (r.entity_type === 'issue') return `/issue/${r.entity_id}`;
+  return '#';
+}
+
+function parseDetail(detail: string | null): Record<string, string> {
+  if (!detail) return {};
+  try { return JSON.parse(detail); } catch { return {}; }
+}
+
+const sections = [
+  { title: 'Top Politicians by Total Received', data: topPoliticians.slice(0, 50), id: 'politicians' },
+  { title: 'Most Influential Organizations', data: topInfluence.slice(0, 50), id: 'influence' },
+  { title: 'Top PAC Contributors', data: topPACContributors.slice(0, 50), id: 'pac' },
+  { title: 'Top Lobbying Spenders', data: topLobbyingSpenders.slice(0, 50), id: 'lobbying' },
+  { title: 'Largest Federal Contractors', data: topContractors.slice(0, 50), id: 'contractors' },
+  { title: 'Top Lobbying Issues', data: topLobbyingIssues.slice(0, 50), id: 'issues' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Rankings' },
+];
+---
+
+<Base
+  title="Rankings — Top Politicians, Spenders & Contractors"
+  description="Pre-computed rankings of top campaign recipients, biggest lobbying spenders, largest federal contractors, and most influential organizations."
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Rankings</h1>
+      <p class="text-[var(--color-muted)] mb-8 max-w-3xl">
+        Pre-computed rankings across campaign finance, lobbying, and federal contracts.
+      </p>
+
+      <div class="flex flex-wrap gap-2 mb-10">
+        {sections.map(s => (
+          <a href={`#${s.id}`} class="text-sm px-3 py-1.5 rounded-full border border-[var(--color-border)] text-[var(--color-muted)] hover:bg-[var(--color-card)] hover:text-[var(--color-foreground)] transition-colors">
+            {s.title}
+          </a>
+        ))}
+      </div>
+
+      {sections.map((section, sectionIndex) => (
+        <div id={section.id} class="mb-12">
+          <h2 class="text-2xl font-bold mb-4">{section.title}</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] w-12">Rank</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Name</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">Detail</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {section.data.map(r => {
+                  const detail = parseDetail(r.detail);
+                  const detailText = detail.party ? `${detail.party}, ${detail.state || ''}` : detail.type || '';
+                  return (
+                    <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                      <td class="py-2 px-4 text-sm text-[var(--color-muted)]">#{r.rank}</td>
+                      <td class="py-2 px-4">
+                        <a href={detailUrl(r)} class="text-[var(--color-accent)] hover:underline font-medium">{r.name}</a>
+                      </td>
+                      <td class="py-2 px-4 text-sm text-[var(--color-muted)] hidden sm:table-cell capitalize">{detailText}</td>
+                      <td class="py-2 px-4 text-right font-medium">{fmtMoney(r.value)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {sectionIndex === 1 && <AdSlot position="mid" />}
+          {sectionIndex === 3 && <AdSlot position="mid" />}
+        </div>
+      ))}
+
+      <p class="text-xs text-[var(--color-muted)]">
+        Data: FEC, Senate LDA, USAspending.gov. 2023-2024 data.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "U.S. Political Influence Rankings",
+    "description": "Rankings of top campaign recipients, lobbying spenders, and federal contractors.",
+    "url": "https://plaininfluence.com/rankings/",
+    "creator": { "@type": "Organization", "name": "PlainInfluence" },
+    "temporalCoverage": "2023/2024",
+    "spatialCoverage": { "@type": "Place", "name": "United States" },
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

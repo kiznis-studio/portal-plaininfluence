@@ -1,0 +1,190 @@
+---
+import Base from '../layouts/Base.astro';
+import type { D1Database } from '../lib/d1-adapter';
+import { getStat, getPoliticianList, getEntityList, getIssueList } from '../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+
+const [politicianCount, entityCount, totalContributions, totalLobbying, topPoliticians, topEntities, topIssues] = await Promise.all([
+  getStat(db, 'politician_count'),
+  getStat(db, 'entity_count'),
+  getStat(db, 'total_pac_contributions'),
+  getStat(db, 'total_lobbying_spending'),
+  getPoliticianList(db),
+  getEntityList(db),
+  getIssueList(db),
+]);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return 'N/A';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function fmtNum(n: string | null): string {
+  if (n == null) return '0';
+  return parseInt(n).toLocaleString();
+}
+
+function partyClass(party: string | null): string {
+  if (party === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (party === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyLabel(party: string | null): string {
+  if (party === 'DEM') return 'D';
+  if (party === 'REP') return 'R';
+  if (party === 'IND') return 'I';
+  if (party === 'LIB') return 'L';
+  return party || '?';
+}
+
+function officeLabel(office: string | null): string {
+  if (office === 'P') return 'President';
+  if (office === 'S') return 'Senate';
+  if (office === 'H') return 'House';
+  return office || '';
+}
+---
+
+<Base
+  title="PlainInfluence — Follow the Money in U.S. Politics"
+  description="Campaign donations, lobbying expenditures, and federal contracts in one place. Track who funds politicians and who profits from government spending."
+>
+  <!-- Hero -->
+  <section class="py-12 md:py-20 bg-gradient-to-b from-indigo-50/50 to-transparent dark:from-indigo-950/20 dark:to-transparent">
+    <div class="container text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Follow the <span class="text-[var(--color-accent)]">money</span>
+      </h1>
+      <p class="text-lg text-[var(--color-muted)] max-w-2xl mx-auto mb-8">
+        Campaign donations, lobbying expenditures, and federal contracts — all from official
+        federal sources, linked by entity resolution.
+      </p>
+
+      <form action="/search" method="get" class="max-w-xl mx-auto mb-10">
+        <div class="flex gap-2">
+          <input
+            type="text"
+            name="q"
+            placeholder="Search politicians or organizations..."
+            class="input flex-1"
+            autocomplete="off"
+          />
+          <button type="submit" class="btn btn-primary px-6">Search</button>
+        </div>
+      </form>
+
+      <div class="flex flex-wrap justify-center gap-6 md:gap-10 text-center">
+        <div>
+          <div class="text-3xl font-bold text-[var(--color-foreground)]">{fmtNum(politicianCount)}</div>
+          <div class="text-sm text-[var(--color-muted)]">Politicians</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-[var(--color-foreground)]">{fmtNum(entityCount)}</div>
+          <div class="text-sm text-[var(--color-muted)]">Organizations</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-[var(--color-foreground)]">{fmtMoney(totalContributions ? parseFloat(totalContributions) : null)}</div>
+          <div class="text-sm text-[var(--color-muted)]">PAC Contributions</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-[var(--color-foreground)]">{fmtMoney(totalLobbying ? parseFloat(totalLobbying) : null)}</div>
+          <div class="text-sm text-[var(--color-muted)]">Lobbying Spending</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Recipients -->
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Top Recipients</h2>
+        <a href="/politicians/" class="text-sm text-[var(--color-accent)] hover:underline">All politicians &rarr;</a>
+      </div>
+      <div class="grid gap-3">
+        {topPoliticians.slice(0, 10).map((p, i) => (
+          <a href={`/politician/${p.fec_id}`} class="card flex items-center gap-4 hover:no-underline py-3 px-4">
+            <span class="text-lg font-bold text-[var(--color-muted)] w-6 text-right">#{i + 1}</span>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-[var(--color-foreground)]">{p.name}</div>
+              <div class="text-xs text-[var(--color-muted)]">
+                <span class={partyClass(p.party)}>{partyLabel(p.party)}</span>
+                {p.state ? ` - ${p.state}` : ''} &middot; {officeLabel(p.office)}
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-medium text-[var(--color-foreground)]">{fmtMoney(p.total_received)}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Biggest Spenders -->
+  <section class="py-10 md:py-14 bg-[var(--color-card)]">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Biggest Spenders</h2>
+        <a href="/organizations/" class="text-sm text-[var(--color-accent)] hover:underline">All organizations &rarr;</a>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {topEntities.slice(0, 9).map(e => (
+          <a href={`/organization/${e.id}`} class="card hover:no-underline">
+            <div class="font-medium text-[var(--color-foreground)] mb-1 truncate">{e.name}</div>
+            <div class="text-xs text-[var(--color-muted)] mb-2 capitalize">{e.type || 'Organization'}</div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[var(--color-muted)]">Total influence</span>
+              <span class="font-medium">{fmtMoney(e.total_influence)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Lobbying Issues -->
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Top Lobbying Issues</h2>
+        <a href="/issues/" class="text-sm text-[var(--color-accent)] hover:underline">All issues &rarr;</a>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {topIssues.slice(0, 9).map(issue => (
+          <a href={`/issue/${issue.code}`} class="card hover:no-underline">
+            <div class="font-medium text-[var(--color-foreground)] mb-1">{issue.name}</div>
+            <div class="flex justify-between text-sm">
+              <span class="text-[var(--color-muted)]">{issue.entity_count} organizations</span>
+              <span class="font-medium">{fmtMoney(issue.total_spending)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Data source disclaimer -->
+  <section class="py-8">
+    <div class="container">
+      <p class="text-xs text-[var(--color-muted)] text-center max-w-3xl mx-auto">
+        Data sourced from the Federal Election Commission (FEC) bulk data (2024 cycle),
+        Senate Lobbying Disclosure Act (LDA) filings (2023-2024), and USAspending.gov
+        federal contracts. Entity resolution links organizations across all three databases.
+        This site is for informational purposes only and is not affiliated with any government agency.
+      </p>
+    </div>
+  </section>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PlainInfluence",
+    "url": "https://plaininfluence.com",
+    "description": "Campaign donations, lobbying expenditures, and federal contracts in one place. Follow the money in U.S. politics."
+  })} />
+</Base>

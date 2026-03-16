@@ -1,0 +1,105 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getIssue, getIssueTopSpenders } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const { code } = Astro.params;
+
+const [issue, spenders] = await Promise.all([
+  getIssue(db, code || ''),
+  getIssueTopSpenders(db, code || '', 50),
+]);
+
+if (!issue) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Issues', href: '/issues/' },
+  { name: issue.name },
+];
+---
+
+<Base
+  title={`${issue.name} Lobbying — ${fmtMoney(issue.total_spending)} Total Spent`}
+  description={`Lobbying on ${issue.name}: ${fmtMoney(issue.total_spending)} total spent by ${issue.entity_count} organizations. Senate LDA data.`}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">{issue.name} Lobbying</h1>
+      <p class="text-[var(--color-muted)] mb-8">
+        Issue code: {issue.code} &middot; {issue.entity_count} organizations lobbying on this issue
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-4 mb-10">
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Total Lobbying Spend</div>
+          <div class="text-2xl font-bold">{fmtMoney(issue.total_spending)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Organizations</div>
+          <div class="text-2xl font-bold">{issue.entity_count.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <AdSlot position="mid" />
+
+      {spenders.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Top Spenders</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] w-12">Rank</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Organization</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden sm:table-cell">Filings</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Total Lobbying</th>
+                </tr>
+              </thead>
+              <tbody>
+                {spenders.map((s, i) => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4 text-sm text-[var(--color-muted)]">#{i + 1}</td>
+                    <td class="py-3 px-4">
+                      <a href={`/organization/${s.id}`} class="text-[var(--color-accent)] hover:underline font-medium">{s.name}</a>
+                    </td>
+                    <td class="py-3 px-4 text-right text-sm hidden sm:table-cell">{s.issue_filing_count}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(s.total_lobbying)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <p class="text-xs text-[var(--color-muted)]">
+        Data: Senate Lobbying Disclosure Act (LDA) filings, 2023-2024.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": `${issue.name} Lobbying Data`,
+    "description": `Lobbying spending on ${issue.name} by ${issue.entity_count} organizations.`,
+    "url": `https://plaininfluence.com/issue/${issue.code}`,
+    "creator": { "@type": "Organization", "name": "U.S. Senate" },
+    "temporalCoverage": "2023/2024",
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

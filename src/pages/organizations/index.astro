@@ -1,0 +1,107 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getEntityList } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const url = Astro.url;
+const type = url.searchParams.get('type') || undefined;
+const sortBy = url.searchParams.get('sort') || 'total_influence';
+
+const entities = await getEntityList(db, type, sortBy);
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Organizations' },
+];
+---
+
+<Base
+  title="Organizations — Political Spending & Influence"
+  description="Browse organizations by total political influence — combining campaign contributions, lobbying, and federal contracts. FEC, Senate LDA, and USAspending data."
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Organizations</h1>
+      <p class="text-[var(--color-muted)] mb-6 max-w-3xl">
+        Organizations ranked by total political influence — combining campaign contributions,
+        lobbying expenditures, and federal contracts.
+      </p>
+
+      <!-- Filters -->
+      <form method="get" class="flex flex-wrap gap-3 mb-8">
+        <select name="type" class="input text-sm py-2">
+          <option value="">All Types</option>
+          <option value="pac" selected={type === 'pac'}>PAC</option>
+          <option value="contractor" selected={type === 'contractor'}>Contractor</option>
+          <option value="lobbying" selected={type === 'lobbying'}>Lobbying</option>
+        </select>
+        <select name="sort" class="input text-sm py-2">
+          <option value="total_influence" selected={sortBy === 'total_influence'}>Total Influence</option>
+          <option value="total_contributions" selected={sortBy === 'total_contributions'}>Contributions</option>
+          <option value="total_lobbying" selected={sortBy === 'total_lobbying'}>Lobbying</option>
+          <option value="total_contracts" selected={sortBy === 'total_contracts'}>Contracts</option>
+        </select>
+        <button type="submit" class="btn btn-primary text-sm">Filter</button>
+        {(type || sortBy !== 'total_influence') && <a href="/organizations/" class="btn text-sm text-[var(--color-muted)]">Clear</a>}
+      </form>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-[var(--color-border)]">
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Organization</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">Type</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden md:table-cell">Contributions</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden lg:table-cell">Lobbying</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right hidden lg:table-cell">Contracts</th>
+              <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Total Influence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entities.map(e => (
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors">
+                <td class="py-3 px-4">
+                  <a href={`/organization/${e.id}`} class="font-medium text-[var(--color-accent)] hover:underline">{e.name}</a>
+                </td>
+                <td class="py-3 px-4 text-sm capitalize hidden sm:table-cell">{e.type || 'N/A'}</td>
+                <td class="py-3 px-4 text-right text-sm hidden md:table-cell">{fmtMoney(e.total_contributions)}</td>
+                <td class="py-3 px-4 text-right text-sm hidden lg:table-cell">{fmtMoney(e.total_lobbying)}</td>
+                <td class="py-3 px-4 text-right text-sm hidden lg:table-cell">{fmtMoney(e.total_contracts)}</td>
+                <td class="py-3 px-4 text-right font-medium">{fmtMoney(e.total_influence)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)] mt-6">
+        Data: FEC (contributions), Senate LDA (lobbying), USAspending.gov (contracts). Total influence = sum of all three.
+      </p>
+    </div>
+  </section>
+
+  <AdSlot position="mid" />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "U.S. Political Influence by Organization",
+    "description": "Organizations ranked by total political influence combining campaign contributions, lobbying, and federal contracts.",
+    "url": "https://plaininfluence.com/organizations/",
+    "creator": { "@type": "Organization", "name": "PlainInfluence" },
+    "temporalCoverage": "2023/2024",
+    "spatialCoverage": { "@type": "Place", "name": "United States" },
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

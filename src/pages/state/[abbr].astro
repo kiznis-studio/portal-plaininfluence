@@ -1,0 +1,175 @@
+---
+import Base from '../../layouts/Base.astro';
+import AdSlot from '../../components/ads/AdSlot.astro';
+import type { D1Database } from '../../lib/d1-adapter';
+import { getState, getStatePoliticians, getStateTopEntities } from '../../lib/db';
+
+const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const { abbr } = Astro.params;
+const stateAbbr = abbr?.toUpperCase() || '';
+
+const [state, politicians, topEntities] = await Promise.all([
+  getState(db, stateAbbr),
+  getStatePoliticians(db, stateAbbr),
+  getStateTopEntities(db, stateAbbr, 20),
+]);
+
+if (!state) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+function fmtMoney(n: number | null): string {
+  if (n == null) return '$0';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function partyClass(p: string | null): string {
+  if (p === 'DEM') return 'text-blue-600 dark:text-blue-400';
+  if (p === 'REP') return 'text-red-600 dark:text-red-400';
+  return 'text-[var(--color-muted)]';
+}
+
+function partyShort(p: string | null): string {
+  if (p === 'DEM') return 'D';
+  if (p === 'REP') return 'R';
+  if (p === 'IND') return 'I';
+  return p || '?';
+}
+
+function officeLabel(o: string | null): string {
+  if (o === 'P') return 'President';
+  if (o === 'S') return 'Senate';
+  if (o === 'H') return 'House';
+  return o || '';
+}
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'States', href: '/states/' },
+  { name: state.name },
+];
+---
+
+<Base
+  title={`${state.name} Political Money — ${fmtMoney(state.total_contributions_received)} in Contributions`}
+  description={`Political money in ${state.name}: ${state.politician_count} politicians, ${fmtMoney(state.total_contributions_received)} in contributions, ${fmtMoney(state.total_lobbying_spent)} in lobbying.`}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="py-10 md:py-14">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">{state.name} Political Money</h1>
+      <p class="text-[var(--color-muted)] mb-8">{state.politician_count} politicians from {state.name} ({state.abbr})</p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Politicians</div>
+          <div class="text-2xl font-bold">{state.politician_count}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Contributions Received</div>
+          <div class="text-2xl font-bold">{fmtMoney(state.total_contributions_received)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Lobbying Spent</div>
+          <div class="text-2xl font-bold">{fmtMoney(state.total_lobbying_spent)}</div>
+        </div>
+        <div class="card">
+          <div class="text-sm text-[var(--color-muted)] mb-1">Contracts Awarded</div>
+          <div class="text-2xl font-bold">{fmtMoney(state.total_contracts_awarded)}</div>
+        </div>
+      </div>
+
+      <AdSlot position="mid" />
+
+      <!-- Politicians -->
+      {politicians.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Politicians from {state.name}</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-[var(--color-border)]">
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)]">Name</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-center">Party</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] hidden sm:table-cell">Office</th>
+                  <th class="py-3 px-4 text-sm font-medium text-[var(--color-muted)] text-right">Total Received</th>
+                </tr>
+              </thead>
+              <tbody>
+                {politicians.slice(0, 100).map(p => (
+                  <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card)]">
+                    <td class="py-3 px-4">
+                      <a href={`/politician/${p.fec_id}`} class="text-[var(--color-accent)] hover:underline font-medium">{p.name}</a>
+                    </td>
+                    <td class={`py-3 px-4 text-center font-medium ${partyClass(p.party)}`}>{partyShort(p.party)}</td>
+                    <td class="py-3 px-4 text-sm hidden sm:table-cell">{officeLabel(p.office)}</td>
+                    <td class="py-3 px-4 text-right font-medium">{fmtMoney(p.total_received)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <!-- Top Entities -->
+      {topEntities.length > 0 && (
+        <div class="mb-10">
+          <h2 class="text-2xl font-bold mb-4">Top Organizations in {state.name}</h2>
+          <div class="grid gap-3">
+            {topEntities.map((e, i) => (
+              <a href={`/organization/${e.id}`} class="card flex items-center gap-4 hover:no-underline py-3 px-4">
+                <span class="text-lg font-bold text-[var(--color-muted)] w-6 text-right">#{i + 1}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-[var(--color-foreground)] truncate">{e.name}</div>
+                  <div class="text-xs text-[var(--color-muted)] capitalize">{e.type || 'Organization'}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-medium">{fmtMoney(e.total_influence)}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Cross-Links -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold mb-4">Related Data for {state.name}</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="https://plainspending.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">Federal Spending</div>
+            <div class="text-sm text-[var(--color-muted)]">USAspending.gov data by state</div>
+          </a>
+          <a href="https://plaincost.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">Cost of Living</div>
+            <div class="text-sm text-[var(--color-muted)]">BEA regional price parities</div>
+          </a>
+          <a href="https://plaincompare.com/" class="card hover:no-underline" target="_blank" rel="noopener">
+            <div class="font-medium text-[var(--color-foreground)]">Metro Comparison</div>
+            <div class="text-sm text-[var(--color-muted)]">Side-by-side metro area tool</div>
+          </a>
+        </div>
+      </div>
+
+      <p class="text-xs text-[var(--color-muted)]">
+        Data: FEC, Senate LDA, USAspending.gov. 2023-2024 data.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": `${state.name} Political Money Data`,
+    "description": `Campaign contributions, lobbying, and federal contracts for ${state.name}.`,
+    "url": `https://plaininfluence.com/state/${stateAbbr}`,
+    "creator": { "@type": "Organization", "name": "PlainInfluence" },
+    "temporalCoverage": "2023/2024",
+    "spatialCoverage": { "@type": "Place", "name": state.name },
+    "license": "https://www.usa.gov/government-copyright"
+  })} />
+</Base>

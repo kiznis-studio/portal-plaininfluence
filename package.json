@@ -1,0 +1,23 @@
+{
+  "name": "portal-plaininfluence",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "DATABASE_PATH=/storage/plaininfluence/plaininfluence.db astro dev",
+    "build": "astro build",
+    "preview": "DATABASE_PATH=/storage/plaininfluence/plaininfluence.db astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.1.3",
+    "@astrojs/sitemap": "^3.7.0",
+    "@sentry/astro": "^10.43.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.17.1",
+    "better-sqlite3": "^11.9.1",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13"
+  }
+}
