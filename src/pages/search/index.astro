@@ -1,9 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
-import type { D1Database } from '../../lib/d1-adapter';
 import { searchAll } from '../../lib/db';
 
-const db = (Astro.locals as any).runtime?.env?.DB as D1Database;
+const db = Astro.locals.runtime.env.DB;
 const query = Astro.url.searchParams.get('q') || '';
 const results = query.length >= 2 ? await searchAll(db, query) : { politicians: [], entities: [] };
 const totalResults = results.politicians.length + results.entities.length;
