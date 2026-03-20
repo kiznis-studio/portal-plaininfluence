@@ -52,6 +52,34 @@ function officeLabel(o: string | null): string {
   return o || '';
 }
 
+const topDonorName = donors.length > 0 ? donors[0].name : null;
+const topDonorAmount = donors.length > 0 ? fmtMoney(donors[0].contribution_amount) : null;
+
+const faqItems = [
+  {
+    q: `Who funds ${politician.name}'s campaign?`,
+    a: `${politician.name} receives campaign contributions from PACs and organizational committees. ${topDonorName ? `The top contributing organization is ${topDonorName}, which contributed ${topDonorAmount}.` : ''} In total, ${politician.name} received ${fmtMoney(politician.total_received)} during the 2024 election cycle from ${donors.length} contributing organizations tracked in FEC filings.`
+  },
+  {
+    q: `How much has ${politician.name} received in total contributions?`,
+    a: `${politician.name} (${partyFull(politician.party)}${politician.state ? ', ' + politician.state : ''}) received ${fmtMoney(politician.total_received)} in PAC and organizational contributions during the 2024 federal election cycle. ${politician.incumbent ? 'As an incumbent, ' + politician.name + ' may benefit from established donor relationships.' : ''} All data comes from Federal Election Commission filings.`
+  },
+  {
+    q: `What office is ${politician.name} running for?`,
+    a: `${politician.name} is a ${partyFull(politician.party)} candidate for ${officeLabel(politician.office)}${politician.state ? ' in ' + politician.state : ''}${politician.district ? ', District ' + politician.district : ''}. ${politician.incumbent ? politician.name + ' is the incumbent.' : politician.name + ' is a challenger or running for an open seat.'}`
+  }
+];
+
+const faqSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map(item => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a }
+  }))
+});
+
 const breadcrumbs = [
   { name: 'Home', href: '/' },
   { name: 'Politicians', href: '/politicians/' },
@@ -93,6 +121,27 @@ const breadcrumbs = [
         </div>
       </div>
 
+      <!-- Money Flow Narrative -->
+      <div class="mb-10 max-w-3xl">
+        <h2 class="text-2xl font-bold mb-4">Campaign Finance Summary</h2>
+        <p class="text-[var(--color-muted)] leading-relaxed">
+          {politician.name} ({partyShort(politician.party)}-{politician.state || 'US'}) has received {fmtMoney(politician.total_received)} in
+          PAC and organizational contributions during the 2024 federal election cycle.
+          {donors.length > 0 ? ` The largest single contribution came from ${donors[0].name}, totaling ${fmtMoney(donors[0].contribution_amount)}.` : ''}
+          {donors.length >= 10
+            ? ` The top 10 contributing organizations account for a significant portion of total receipts, reflecting concentrated donor support from key interest groups.`
+            : ''}
+          {politician.incumbent
+            ? ' As an incumbent, established donor networks and name recognition typically provide a fundraising advantage.'
+            : ' As a non-incumbent candidate, building a donor base is a critical component of campaign viability.'}
+        </p>
+        <p class="text-[var(--color-muted)] leading-relaxed mt-3">
+          These contributions come from PACs and organizational committees registered with the Federal Election Commission.
+          Individual contributions are reported separately and are not included in these totals.
+          Understanding who funds a candidate provides transparency into the interests that may influence policy priorities.
+        </p>
+      </div>
+
       <AdSlot position="mid" />
 
       <!-- Top Donors -->
@@ -124,21 +173,39 @@ const breadcrumbs = [
         </div>
       )}
 
+      <!-- FAQ Section -->
+      <div class="mb-10">
+        <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="max-w-3xl space-y-3">
+          {faqItems.map(item => (
+            <details class="card group">
+              <summary class="cursor-pointer font-medium text-[var(--color-foreground)] flex items-center justify-between list-none">
+                <span>{item.q}</span>
+                <svg class="w-5 h-5 text-[var(--color-muted)] transition-transform group-open:rotate-180 shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="mt-3 text-sm text-[var(--color-muted)] leading-relaxed">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
       <!-- Cross-Links -->
       <div class="mb-10">
         <h2 class="text-xl font-bold mb-4">Related Data</h2>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <a href="https://plainspending.com/" class="card hover:no-underline" target="_blank" rel="noopener">
             <div class="font-medium text-[var(--color-foreground)]">Federal Spending</div>
-            <div class="text-sm text-[var(--color-muted)]">USAspending.gov contract and grant data</div>
+            <div class="text-sm text-[var(--color-muted)]">Where federal dollars go — contracts, grants, and agency spending by state</div>
           </a>
           <a href="https://plaingovjobs.com/" class="card hover:no-underline" target="_blank" rel="noopener">
             <div class="font-medium text-[var(--color-foreground)]">Federal Workforce</div>
-            <div class="text-sm text-[var(--color-muted)]">OPM federal employment data</div>
+            <div class="text-sm text-[var(--color-muted)]">OPM federal employment data — agencies, occupations, and pay</div>
           </a>
           <a href="https://plainvisa.com/" class="card hover:no-underline" target="_blank" rel="noopener">
             <div class="font-medium text-[var(--color-foreground)]">H-1B Visa Data</div>
-            <div class="text-sm text-[var(--color-muted)]">DOL labor condition applications</div>
+            <div class="text-sm text-[var(--color-muted)]">DOL labor condition applications — employers, wages, and locations</div>
           </a>
         </div>
       </div>
@@ -159,4 +226,5 @@ const breadcrumbs = [
     "temporalCoverage": "2024",
     "license": "https://www.usa.gov/government-copyright"
   })} />
+  <script type="application/ld+json" set:html={faqSchema} />
 </Base>
