@@ -85,6 +85,29 @@ const breadcrumbs = [
   { name: 'Politicians', href: '/politicians/' },
   { name: politician.name },
 ];
+
+const faqItems = [
+  {
+    q: `How much PAC money has ${politician.name} received?`,
+    a: `${politician.name} (${partyFull(politician.party)}, ${politician.state || 'US'}) has received ${fmtMoney(politician.total_received)} in total PAC contributions during the 2024 election cycle, from ${donors.length} contributing organizations. ${politician.incumbent ? 'As an incumbent, ' + politician.name + ' may have an established fundraising network.' : ''}`,
+  },
+  {
+    q: `Who are the top donors to ${politician.name}?`,
+    a: donors.length > 0
+      ? `The top contributor to ${politician.name} is ${donors[0].name} with ${fmtMoney(donors[0].contribution_amount)}.${donors.length >= 3 ? ` Other major donors include ${donors[1].name} (${fmtMoney(donors[1].contribution_amount)}) and ${donors[2].name} (${fmtMoney(donors[2].contribution_amount)}).` : ''} All data is sourced from FEC filings for the 2024 cycle.`
+      : `No PAC donor data is currently available for ${politician.name} in the FEC 2024 cycle database.`,
+  },
+];
+
+const faqSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+});
 ---
 
 <Base
@@ -210,6 +233,30 @@ const breadcrumbs = [
         </div>
       </div>
 
+      <!-- Content Narrative -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold mb-3">Campaign Finance Context</h2>
+        <p class="text-sm text-[var(--color-muted)] leading-relaxed max-w-3xl">
+          {politician.name}'s {fmtMoney(politician.total_received)} in PAC contributions reflects the financial support network behind this {officeLabel(politician.office).toLowerCase()} {politician.incumbent ? 'incumbent' : 'candidate'}. PAC contributions represent organizational support — from corporations, trade associations, and ideological groups — and are distinct from individual donations. Understanding who funds a campaign provides transparency into potential policy alignment and constituent priorities.
+        </p>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold mb-4">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+          {faqItems.map(f => (
+            <details class="card group">
+              <summary class="cursor-pointer font-medium flex items-center justify-between list-none p-4">
+                <span>{f.q}</span>
+                <svg class="w-4 h-4 text-[var(--color-muted)] transition-transform group-open:rotate-180 shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </summary>
+              <div class="px-4 pb-4 text-sm text-[var(--color-muted)]">{f.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+
       <p class="text-xs text-[var(--color-muted)]">
         Data: Federal Election Commission, 2024 cycle. Contributions shown are from PACs and organizational committees.
       </p>
@@ -226,5 +273,6 @@ const breadcrumbs = [
     "temporalCoverage": "2024",
     "license": "https://www.usa.gov/government-copyright"
   })} />
+  <script type="application/ld+json" set:html={faqSchema} />
   <script type="application/ld+json" set:html={faqSchema} />
 </Base>
