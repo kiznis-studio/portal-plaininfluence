@@ -86,28 +86,6 @@ const breadcrumbs = [
   { name: politician.name },
 ];
 
-const faqItems = [
-  {
-    q: `How much PAC money has ${politician.name} received?`,
-    a: `${politician.name} (${partyFull(politician.party)}, ${politician.state || 'US'}) has received ${fmtMoney(politician.total_received)} in total PAC contributions during the 2024 election cycle, from ${donors.length} contributing organizations. ${politician.incumbent ? 'As an incumbent, ' + politician.name + ' may have an established fundraising network.' : ''}`,
-  },
-  {
-    q: `Who are the top donors to ${politician.name}?`,
-    a: donors.length > 0
-      ? `The top contributor to ${politician.name} is ${donors[0].name} with ${fmtMoney(donors[0].contribution_amount)}.${donors.length >= 3 ? ` Other major donors include ${donors[1].name} (${fmtMoney(donors[1].contribution_amount)}) and ${donors[2].name} (${fmtMoney(donors[2].contribution_amount)}).` : ''} All data is sourced from FEC filings for the 2024 cycle.`
-      : `No PAC donor data is currently available for ${politician.name} in the FEC 2024 cycle database.`,
-  },
-];
-
-const faqSchema = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqItems.map(f => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-});
 ---
 
 <Base
