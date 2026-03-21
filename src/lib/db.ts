@@ -11,6 +11,7 @@ import type {
   RankingEntry,
   NationalStat,
 } from './types';
+import { persistToDisk, loadFromDisk, warmFromDisk } from './disk-cache';
 
 // --- Query-level cache ---
 const queryCache = new Map<string, unknown>();
