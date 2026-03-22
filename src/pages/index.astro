@@ -214,4 +214,17 @@ function officeLabel(office: string | null): string {
     "url": "https://plaininfluence.com",
     "description": "Campaign donations, lobbying expenditures, and federal contracts in one place. Follow the money in U.S. politics."
   })} />
+
+  {/* JSON-LD: WebSite + SearchAction */}
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PlainInfluence",
+    "url": import.meta.env.SITE,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${import.meta.env.SITE}/?q={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  })} />
 </Base>
