@@ -3,9 +3,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { gzipSync, gunzipSync } from 'node:zlib';
-import http from 'node:http';
 import { createD1Adapter, type D1Database } from './lib/d1-adapter';
-import { warmQueryCache } from './lib/db';
 
 // --- Sitemap disk cache ---
 const SITEMAP_CACHE_DIR = '/tmp/sitemap-cache';
@@ -28,7 +26,6 @@ function isSitemapPath(p: string): boolean {
   return (p.includes('sitemap') || p === '/robots.txt') && (p.endsWith('.xml') || p === '/robots.txt');
 }
 
-let sitemapsWarmed = false;
 
 function containerMemoryPct(): number {
   try {
@@ -100,82 +97,9 @@ function getRollingMetrics() {
   return { requestRate: rate, avgLatency: avg };
 }
 
-// --- Background batched cache warming ---
-let cacheWarmed = false;
-let cacheWarmedAt: string | null = null;
-
-const IS_WARM_WORKER = process.env.CACHE_WARM_WORKER !== '0';
-
-function startBackgroundWarming(): void {
-  if (!IS_WARM_WORKER) { cacheWarmed = true; return; }
-  const env = getAllDbs();
-  if (Object.keys(env).length === 0) { cacheWarmed = true; return; }
-  (async () => {
-    try {
-      await warmQueryCache(env);
-      cacheWarmedAt = new Date().toISOString();
-    } catch (err) {
-      console.error('[cache] Warming failed:', err);
-    }
-    cacheWarmed = true;
-  })();
-}
-startBackgroundWarming();
-
-// --- Sitemap background warming ---
-function warmSitemaps(): void {
-  if (!IS_WARM_WORKER) return;
-  const port = parseInt(process.env.PORT || '4321');
-
-  function selfFetch(urlPath: string): Promise<string> {
-    return new Promise((resolve) => {
-      const req = http.get({ hostname: '127.0.0.1', port, path: urlPath, timeout: 30000 }, (res) => {
-        let body = '';
-        res.on('data', (c: Buffer) => body += c);
-        res.on('end', () => resolve(body));
-      });
-      req.on('error', () => resolve(''));
-      req.on('timeout', () => { req.destroy(); resolve(''); });
-    });
-  }
-
-  const checkInterval = setInterval(async () => {
-    if (!cacheWarmed) return;
-    clearInterval(checkInterval);
-    try {
-      const indexXml = await selfFetch('/sitemap-index.xml');
-      if (!indexXml.includes('<sitemapindex') && !indexXml.includes('<urlset')) {
-        const fallback = await selfFetch('/sitemap.xml');
-        if (fallback.includes('<urlset')) saveSitemapToDisk('/sitemap.xml', fallback);
-        sitemapsWarmed = true;
-        return;
-      }
-      saveSitemapToDisk('/sitemap-index.xml', indexXml);
-      const locs = [...indexXml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => {
-        try { return new URL(m[1]).pathname; } catch { return null; }
-      }).filter(Boolean) as string[];
-      let warmed = 1;
-      for (const loc of locs) {
-        const memPct = containerMemoryPct();
-        if (memPct > 0.80) {
-          await new Promise(r => setTimeout(r, 30000));
-        } else if (memPct > 0.65) {
-          await new Promise(r => setTimeout(r, 5000));
-        }
-        if (getSitemapFromDisk(loc)) { warmed++; continue; }
-        const xml = await selfFetch(loc);
-        if (xml && xml.length > 50) { saveSitemapToDisk(loc, xml); warmed++; }
-        await new Promise(r => setTimeout(r, 2000));
-      }
-      console.log(`[sitemap-cache] Warmed ${warmed} sitemaps to disk`);
-    } catch (err) {
-      console.error('[sitemap-cache] Warming failed:', (err as Error).message);
-    }
-    sitemapsWarmed = true;
-  }, 2000);
-  checkInterval.unref();
-}
-warmSitemaps();
+// Workers are always ready — warming is handled by the warmer process (KIZ-319)
+let cacheWarmed = true;
+let cacheWarmedAt: string | null = new Date().toISOString();
 
 // --- Compressed LRU response cache (disabled in cluster mode — primary handles caching) ---
 interface CacheEntry { compressed: Buffer; contentType: string; cacheControl: string; hits: number; }
