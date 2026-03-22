@@ -274,4 +274,20 @@ function officeLabel(office: string | null): string {
     ]
   })} />
 
+  <!-- Cross-Portal Links -->
+  <section class="max-w-4xl mx-auto px-4 py-12">
+    <h2 class="text-xl font-bold mb-4">Explore More Data</h2>
+    <p class="text-sm text-[var(--color-muted)] mb-4">Related government data portals from the Plain Data network:</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <a href="https://plainspending.com" class="block p-4 border border-[var(--color-border)] rounded-lg hover:border-[var(--color-primary)] transition-colors" rel="noopener">
+          <span class="font-semibold text-[var(--color-primary)]">PlainSpending</span>
+          <span class="block text-sm text-[var(--color-muted)] mt-1">Federal government spending data from USASpending — track contract awards, grants, and agency budgets</span>
+        </a>
+        <a href="https://plaingovjobs.com" class="block p-4 border border-[var(--color-border)] rounded-lg hover:border-[var(--color-primary)] transition-colors" rel="noopener">
+          <span class="font-semibold text-[var(--color-primary)]">PlainGovJobs</span>
+          <span class="block text-sm text-[var(--color-muted)] mt-1">Federal workforce data from OPM — 115 agencies, GS pay scale, and workforce demographics</span>
+        </a>
+    </div>
+  </section>
+
 </Base>
