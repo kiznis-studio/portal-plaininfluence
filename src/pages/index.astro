@@ -227,4 +227,51 @@ function officeLabel(office: string | null): string {
       "query-input": "required name=search_term_string"
     }
   })} />
+
+  <!-- FAQ Section -->
+  <section class="max-w-4xl mx-auto px-4 py-12">
+    <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+    <div class="space-y-3">
+      <details class="group border border-[var(--color-border)] rounded-lg">
+        <summary class="flex items-center justify-between p-4 cursor-pointer font-medium">
+          Where does PlainInfluence get its political money data?
+          <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="px-4 pb-4 text-[var(--color-muted)] text-sm leading-relaxed">Data comes from three federal sources: the Federal Election Commission (FEC) for campaign contributions, the Senate Office of Public Records for lobbying disclosures under the LDA, and USAspending.gov for government contract data.</div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-lg">
+        <summary class="flex items-center justify-between p-4 cursor-pointer font-medium">
+          How many politicians and entities are tracked?
+          <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="px-4 pb-4 text-[var(--color-muted)] text-sm leading-relaxed">PlainInfluence tracks over 7,100 politicians and nearly 10,000 entities (corporations, PACs, and lobbying firms) across 79 lobbying issue categories.</div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-lg">
+        <summary class="flex items-center justify-between p-4 cursor-pointer font-medium">
+          Is PlainInfluence free?
+          <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="px-4 pb-4 text-[var(--color-muted)] text-sm leading-relaxed">Yes, PlainInfluence is completely free. You can search politicians, entities, and lobbying data without any account or payment. All data comes from public federal disclosures.</div>
+      </details>
+      <details class="group border border-[var(--color-border)] rounded-lg">
+        <summary class="flex items-center justify-between p-4 cursor-pointer font-medium">
+          How current is the lobbying and contribution data?
+          <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </summary>
+        <div class="px-4 pb-4 text-[var(--color-muted)] text-sm leading-relaxed">FEC contribution data and Senate lobbying disclosures are updated as new filings become available. Lobbying disclosures are filed quarterly, while FEC data is updated on a rolling basis.</div>
+      </details>
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Where does PlainInfluence get its political money data?", "acceptedAnswer": { "@type": "Answer", "text": "Data comes from three federal sources: the Federal Election Commission (FEC) for campaign contributions, the Senate Office of Public Records for lobbying disclosures under the LDA, and USAspending.gov for government contract data." } },
+      { "@type": "Question", "name": "How many politicians and entities are tracked?", "acceptedAnswer": { "@type": "Answer", "text": "PlainInfluence tracks over 7,100 politicians and nearly 10,000 entities (corporations, PACs, and lobbying firms) across 79 lobbying issue categories." } },
+      { "@type": "Question", "name": "Is PlainInfluence free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, PlainInfluence is completely free. You can search politicians, entities, and lobbying data without any account or payment. All data comes from public federal disclosures." } },
+      { "@type": "Question", "name": "How current is the lobbying and contribution data?", "acceptedAnswer": { "@type": "Answer", "text": "FEC contribution data and Senate lobbying disclosures are updated as new filings become available. Lobbying disclosures are filed quarterly, while FEC data is updated on a rolling basis." } }
+    ]
+  })} />
+
 </Base>
